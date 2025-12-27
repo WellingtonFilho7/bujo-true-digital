@@ -1,141 +1,70 @@
-import React, { useState } from 'react';
-import { Plus, Calendar, ArrowRight, Check, X, Circle, Minus } from 'lucide-react';
-import { ViewProps } from '@/types/bujo';
+import { Task, TaskType } from '@/types/bujo';
+import { TaskItem } from '@/components/TaskItem';
+import { AddTaskForm } from '@/components/AddTaskForm';
 
-export const MonthlyView: React.FC<ViewProps> = ({
+interface MonthlyViewProps {
+  currentDate: Date;
+  toISODate: (date: Date) => string;
+  getTasksForDate: (dateStr: string) => Task[];
+  addTask: (dateStr: string, content: string, type: TaskType) => void;
+  updateTaskStatus: (dateStr: string, taskId: string, status: Task['status']) => void;
+  onMigrate: (dateStr: string, taskId: string) => void;
+}
+
+export function MonthlyView({
   currentDate,
   toISODate,
   getTasksForDate,
   addTask,
   updateTaskStatus,
   onMigrate
-}) => {
-  const [newItemContent, setNewItemContent] = useState('');
-  const [newItemType, setNewItemType] = useState<'task' | 'event' | 'note'>('task');
-  const [optionalDate, setOptionalDate] = useState<string>('');
-  const [showDatePicker, setShowDatePicker] = useState(false);
+}: MonthlyViewProps) {
+  // Define a chave do mês (usando o dia 1 do mês como referência do "Bucket")
+  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const dateStr = toISODate(firstDayOfMonth);
+  const tasks = getTasksForDate(dateStr);
 
-  // Usamos o dia 1 do mês como "Balde" do mês
-  const monthKey = toISODate(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
-  const tasks = getTasksForDate(monthKey);
-
-  const handleAdd = () => {
-    if (!newItemContent.trim()) return;
-    
-    const contentToSave = optionalDate 
-      ? `[${new Date(optionalDate).toLocaleDateString('pt-BR', {day:'2-digit'})}] ${newItemContent}`
-      : newItemContent;
-
-    addTask(monthKey, newItemType, contentToSave);
-    setNewItemContent('');
-    setOptionalDate('');
-    setShowDatePicker(false);
+  const handleToggleDone = (dStr: string, taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      updateTaskStatus(dStr, taskId, task.status === 'done' ? 'open' : 'done');
+    }
   };
 
+  const handleCancel = (dStr: string, taskId: string) => {
+    updateTaskStatus(dStr, taskId, 'canceled');
+  };
+
+  const monthTitle = currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="border-b-2 border-foreground pb-2 mb-4">
-        <h2 className="text-xl font-bold uppercase tracking-tight">
-          Monthly Log
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-        </p>
-      </div>
+    <div className="h-full flex flex-col">
+      <h2 className="text-lg font-bold uppercase tracking-tight capitalize mb-4">
+        {monthTitle}
+      </h2>
 
-      <ul className="space-y-3 min-h-[200px]">
-        {tasks.length === 0 && (
-          <li className="text-sm text-muted-foreground italic text-center py-8">
-            Nenhum plano para este mês ainda.
-          </li>
-        )}
-        
-        {tasks.map(task => (
-          <li key={task.id} className="group flex items-start gap-3 text-sm hover:bg-accent/50 p-2 rounded-md transition-colors">
-            <button
-              onClick={() => updateTaskStatus(monthKey, task.id, task.status === 'done' ? 'open' : 'done')}
-              className="mt-0.5 min-w-[20px] font-bold text-foreground"
-            >
-              {task.status === 'done' ? <Check className="w-4 h-4" /> : 
-               task.status === 'canceled' ? <X className="w-4 h-4" /> :
-               task.type === 'task' ? <Circle className="w-3 h-3 fill-foreground" /> :
-               task.type === 'event' ? <Circle className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-            </button>
-
-            <span className={`flex-1 leading-normal ${task.status !== 'open' ? 'line-through text-muted-foreground' : ''}`}>
-              {task.content}
-            </span>
-
-            {task.status === 'open' && (
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
-                  onClick={() => onMigrate?.(monthKey, task.id)}
-                  title="Migrar para Próximo Mês"
-                  className="p-1 hover:bg-foreground hover:text-background rounded"
-                >
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-                <button 
-                  onClick={() => updateTaskStatus(monthKey, task.id, 'canceled')}
-                  className="p-1 hover:bg-destructive hover:text-destructive-foreground rounded"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
-
-      {/* INPUT IDENTICO AO WEEKLY */}
-      <div className="flex flex-col gap-2 pt-4 border-t border-border bg-background sticky bottom-0">
-        <div className="flex items-center gap-2">
-          <select 
-            value={newItemType}
-            onChange={(e) => setNewItemType(e.target.value as any)}
-            className="bg-transparent border border-input rounded p-1 text-xs"
-          >
-            <option value="task">•</option>
-            <option value="event">○</option>
-            <option value="note">–</option>
-          </select>
-
-          <input
-            type="text"
-            value={newItemContent}
-            onChange={(e) => setNewItemContent(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-            placeholder="Meta para o mês..."
-            className="flex-1 bg-transparent border-b border-input p-1 text-sm focus:outline-none focus:border-foreground"
-          />
-
-          <button 
-            onClick={() => setShowDatePicker(!showDatePicker)}
-            className={`p-2 rounded hover:bg-accent ${optionalDate ? 'text-primary' : 'text-muted-foreground'}`}
-          >
-            <Calendar className="w-4 h-4" />
-          </button>
-
-          <button 
-            onClick={handleAdd}
-            className="bg-foreground text-background p-2 rounded hover:opacity-90"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-        
-        {showDatePicker && (
-          <div className="flex items-center gap-2 text-xs animate-in slide-in-from-top-2">
-            <span className="text-muted-foreground">Data visual (opcional):</span>
-            <input 
-              type="date" 
-              value={optionalDate}
-              onChange={(e) => setOptionalDate(e.target.value)}
-              className="bg-background border border-input rounded p-1"
-            />
+      <div className="flex-1 overflow-y-auto hide-scrollbar">
+        {tasks.length === 0 ? (
+          <p className="text-muted-foreground text-sm italic">Nenhuma tarefa para este mês.</p>
+        ) : (
+          <div className="space-y-0.5">
+            {tasks.map(task => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                dateStr={dateStr}
+                onToggleDone={handleToggleDone}
+                onCancel={handleCancel}
+                onMigrate={onMigrate}
+              />
+            ))}
           </div>
         )}
       </div>
+
+      <div className="pt-4 border-t border-border mt-4">
+        <AddTaskForm dateStr={dateStr} onAdd={addTask} />
+      </div>
     </div>
   );
-};
+}
