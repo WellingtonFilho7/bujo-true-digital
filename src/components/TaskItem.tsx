@@ -27,6 +27,19 @@ export function TaskItem({
   const isMigrated = task.status === 'migrated';
   const isCompleted = isDone || isCanceled || isMigrated;
 
+  // Lógica para detectar e separar a data do texto
+  // Procura por algo no formato [DD/MM] no início da string
+  const dateRegex = /^\[(\d{2}\/\d{2})\]\s*(.*)/;
+  const match = task.content.match(dateRegex);
+
+  let displayDate = null;
+  let displayContent = task.content;
+
+  if (match) {
+    displayDate = match[1]; // A parte da data (ex: 28/12)
+    displayContent = match[2]; // O resto do texto
+  }
+
   return (
     <div 
       className={cn(
@@ -47,16 +60,22 @@ export function TaskItem({
         {symbol}
       </button>
 
-      {/* Content */}
-      <span 
-        className={cn(
-          "flex-1 text-sm leading-snug break-words",
-          isCompleted && "line-through text-muted-foreground",
-          compact && "text-xs"
+      {/* Content Container */}
+      <div className={cn(
+        "flex-1 text-sm leading-snug break-words flex flex-wrap gap-1 items-baseline",
+        isCompleted && "line-through text-muted-foreground",
+        compact && "text-xs"
+      )}>
+        {/* Se houver data, mostra como Badge */}
+        {displayDate && (
+          <span className="inline-block bg-muted text-muted-foreground px-1.5 py-0.5 rounded text-[10px] font-mono tracking-tighter mr-1 no-underline">
+            {displayDate}
+          </span>
         )}
-      >
-        {task.content}
-      </span>
+        
+        {/* Texto da tarefa */}
+        <span>{displayContent}</span>
+      </div>
 
       {/* Actions */}
       {task.status === 'open' && (
@@ -64,14 +83,14 @@ export function TaskItem({
           <button
             onClick={() => onMigrate(dateStr, task.id)}
             className="w-5 h-5 text-xs border border-border rounded flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
-            title="Migrar"
+            title="Migrar >"
           >
             ↦
           </button>
           <button
             onClick={() => onCancel(dateStr, task.id)}
             className="w-5 h-5 text-xs border border-border rounded flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-colors"
-            title="Cancelar"
+            title="Cancelar X"
           >
             ✖
           </button>
