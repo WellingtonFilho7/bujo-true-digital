@@ -78,9 +78,9 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col max-w-2xl mx-auto">
+    <div className="h-screen flex flex-col max-w-2xl mx-auto pt-safe pb-safe">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b-2 border-foreground sticky top-0 bg-background z-50">
+      <header className="flex items-center justify-between px-4 py-3 border-b-2 border-foreground sticky top-0 bg-background z-50 pt-2">
         <h1 className="text-lg font-bold tracking-tight uppercase">BuJo</h1>
         
         <div className="flex items-center gap-3 text-xs">
