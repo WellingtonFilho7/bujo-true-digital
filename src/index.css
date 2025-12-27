@@ -106,10 +106,21 @@
     font-feature-settings: "liga" 1, "calt" 1;
   }
 
+  /* Safe area insets for iOS */
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top), 0.5rem);
+  }
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  }
+
   /* Hide scrollbar but allow scrolling */
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
