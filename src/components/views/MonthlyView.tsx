@@ -11,91 +11,55 @@ interface MonthlyViewProps {
   addTask: (dateStr: string, content: string, type: TaskType) => void;
   updateTaskStatus: (dateStr: string, taskId: string, status: Task['status']) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
+  deleteTask: (dateStr: string, taskId: string) => void;
 }
 
 export function MonthlyView({
-  currentDate,
-  toISODate,
-  getTasksForDate,
-  addTask,
-  updateTaskStatus,
-  onMigrate
+  currentDate, toISODate, getTasksForDate, addTask, updateTaskStatus, onMigrate, deleteTask
 }: MonthlyViewProps) {
-  // Estado local para navegação
   const [viewDate, setViewDate] = useState(new Date(currentDate));
-
-  // Define a chave do mês (dia 1 do mês visualizado)
   const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
   const dateStr = toISODate(firstDayOfMonth);
   const tasks = getTasksForDate(dateStr);
 
-  // Navegação
-  const handlePrevMonth = () => {
-    const newDate = new Date(viewDate);
-    newDate.setMonth(newDate.getMonth() - 1);
-    setViewDate(newDate);
+  const handleSmartAdd = (currentListDate: string, content: string, type: TaskType, specificDate?: string) => {
+    if (specificDate) {
+      // Se definiu data (ex: 15/02), salva no dia 15/02 (aparecerá no Daily Log do dia 15)
+      // Se quiser que apareça na lista MESTRE do mês, a lógica seria converter para o dia 1 daquele mês.
+      // Mas o comportamento padrão de "Agendar" geralmente é para um dia específico.
+      addTask(specificDate, content, type);
+    } else {
+      addTask(currentListDate, content, type);
+    }
   };
 
-  const handleNextMonth = () => {
-    const newDate = new Date(viewDate);
-    newDate.setMonth(newDate.getMonth() + 1);
-    setViewDate(newDate);
-  };
-
-  // Formatação manual para garantir "de" minúsculo
-  const monthName = viewDate.toLocaleDateString('pt-BR', { month: 'long' });
-  const year = viewDate.getFullYear();
-  // Capitaliza apenas a primeira letra do mês
-  const monthTitle = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} de ${year}`;
-
-  // Handlers
   const handleToggleDone = (dStr: string, taskId: string) => {
     const task = tasks.find(t => t.id === taskId);
     if (task) updateTaskStatus(dStr, taskId, task.status === 'done' ? 'open' : 'done');
   };
 
-  const handleCancel = (dStr: string, taskId: string) => updateTaskStatus(dStr, taskId, 'canceled');
+  const monthName = viewDate.toLocaleDateString('pt-BR', { month: 'long' });
+  const monthTitle = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} de ${viewDate.getFullYear()}`;
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header com Navegação */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={handlePrevMonth} className="p-1 hover:bg-accent rounded-full">
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <h2 className="text-lg font-bold uppercase tracking-tight text-center">
-          {monthTitle}
-        </h2>
-
-        <button onClick={handleNextMonth} className="p-1 hover:bg-accent rounded-full">
-          <ChevronRight className="w-5 h-5" />
-        </button>
+        <button onClick={() => { const d = new Date(viewDate); d.setMonth(d.getMonth() - 1); setViewDate(d); }} className="p-1 hover:bg-accent rounded-full"><ChevronLeft className="w-5 h-5" /></button>
+        <h2 className="text-lg font-bold uppercase tracking-tight text-center">{monthTitle}</h2>
+        <button onClick={() => { const d = new Date(viewDate); d.setMonth(d.getMonth() + 1); setViewDate(d); }} className="p-1 hover:bg-accent rounded-full"><ChevronRight className="w-5 h-5" /></button>
       </div>
 
       <div className="flex-1 overflow-y-auto hide-scrollbar">
-        {tasks.length === 0 ? (
-          <p className="text-muted-foreground text-sm italic text-center mt-10">
-            Nenhuma tarefa para este mês.
-          </p>
-        ) : (
+        {tasks.length === 0 ? <p className="text-muted-foreground text-sm italic text-center mt-10">Lista do mês vazia.</p> : (
           <div className="space-y-0.5">
             {tasks.map(task => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                dateStr={dateStr}
-                onToggleDone={handleToggleDone}
-                onCancel={handleCancel}
-                onMigrate={onMigrate}
-              />
+              <TaskItem key={task.id} task={task} dateStr={dateStr} onToggleDone={handleToggleDone} onCancel={(d, id) => updateTaskStatus(d, id, 'canceled')} onMigrate={onMigrate} onDelete={deleteTask} />
             ))}
           </div>
         )}
       </div>
-
       <div className="pt-4 border-t border-border mt-4">
-        <AddTaskForm dateStr={dateStr} onAdd={addTask} />
+        <AddTaskForm dateStr={dateStr} onAdd={handleSmartAdd} />
       </div>
     </div>
   );
