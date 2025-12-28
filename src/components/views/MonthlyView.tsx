@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Task, TaskType } from '@/types/bujo';
 import { TaskItem } from '@/components/TaskItem';
 import { AddTaskForm } from '@/components/AddTaskForm';
@@ -18,28 +18,41 @@ export function MonthlyView({
   currentDate, toISODate, getTasksForDate, addTask, updateTaskStatus, onMigrate, deleteTask
 }: MonthlyViewProps) {
   const [viewDate, setViewDate] = useState(new Date(currentDate));
-  const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
-  const dateStr = toISODate(firstDayOfMonth);
-  const tasks = getTasksForDate(dateStr);
+  
+  // --- NOVA LÓGICA DE INTEGRAÇÃO ---
+  const allMonthTasks = useMemo(() => {
+    const tasks = [];
+    const year = viewDate.getFullYear();
+    const month = viewDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate(); // Pega último dia do mês
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const d = new Date(year, month, day);
+      const dStr = toISODate(d);
+      const tasksForDay = getTasksForDate(dStr).map(t => ({ ...t, originalDate: dStr }));
+      tasks.push(...tasksForDay);
+    }
+    return tasks;
+  }, [viewDate, toISODate, getTasksForDate]);
+  // ---------------------------------
 
   const handleSmartAdd = (currentListDate: string, content: string, type: TaskType, specificDate?: string) => {
     if (specificDate) {
-      // Se definiu data (ex: 15/02), salva no dia 15/02 (aparecerá no Daily Log do dia 15)
-      // Se quiser que apareça na lista MESTRE do mês, a lógica seria converter para o dia 1 daquele mês.
-      // Mas o comportamento padrão de "Agendar" geralmente é para um dia específico.
       addTask(specificDate, content, type);
     } else {
+      // Se não der data, salva no dia 1 do mês (Master List Mensal)
       addTask(currentListDate, content, type);
     }
   };
 
   const handleToggleDone = (dStr: string, taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
+    const task = allMonthTasks.find(t => t.id === taskId);
     if (task) updateTaskStatus(dStr, taskId, task.status === 'done' ? 'open' : 'done');
   };
 
   const monthName = viewDate.toLocaleDateString('pt-BR', { month: 'long' });
   const monthTitle = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} de ${viewDate.getFullYear()}`;
+  const firstDayStr = toISODate(new Date(viewDate.getFullYear(), viewDate.getMonth(), 1));
 
   return (
     <div className="h-full flex flex-col">
@@ -50,16 +63,25 @@ export function MonthlyView({
       </div>
 
       <div className="flex-1 overflow-y-auto hide-scrollbar">
-        {tasks.length === 0 ? <p className="text-muted-foreground text-sm italic text-center mt-10">Lista do mês vazia.</p> : (
+        {allMonthTasks.length === 0 ? <p className="text-muted-foreground text-sm italic text-center mt-10">Mês livre.</p> : (
           <div className="space-y-0.5">
-            {tasks.map(task => (
-              <TaskItem key={task.id} task={task} dateStr={dateStr} onToggleDone={handleToggleDone} onCancel={(d, id) => updateTaskStatus(d, id, 'canceled')} onMigrate={onMigrate} onDelete={deleteTask} />
+            {allMonthTasks.map(task => (
+              <TaskItem 
+                key={`${task.originalDate}-${task.id}`} 
+                task={task} 
+                dateStr={task.originalDate} 
+                onToggleDone={handleToggleDone} 
+                onCancel={(d, id) => updateTaskStatus(d, id, 'canceled')} 
+                onMigrate={onMigrate} 
+                onDelete={deleteTask}
+                showDate={true} // Mostra a data visualmente
+              />
             ))}
           </div>
         )}
       </div>
       <div className="pt-4 border-t border-border mt-4">
-        <AddTaskForm dateStr={dateStr} onAdd={handleSmartAdd} />
+        <AddTaskForm dateStr={firstDayStr} onAdd={handleSmartAdd} />
       </div>
     </div>
   );
