@@ -1,16 +1,33 @@
+// src/hooks/useBujo.ts
+
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Task, Project, TaskType } from '@/types/bujo';
 
-// Conecta ao seu banco de dados usando as chaves do arquivo .env
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Só tenta criar o cliente se as chaves existirem
+const supabase = (supabaseUrl && supabaseAnonKey) 
+  ? createClient(supabaseUrl, supabaseAnonKey) 
+  : null;
 
 export function useBujo() {
   const [tasks, setTasks] = useState<Record<string, Task[]>>({});
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  const fetchData = useCallback(async () => {
+    // Se o supabase não estiver configurado, não faz nada (evita tela branca)
+    if (!supabase) {
+      console.warn("Supabase não configurado. Verifique as variáveis de ambiente.");
+      return;
+    }
+
+    const { data: projData } = await supabase.from('projects').select('*');
+    if (projData) setProjects(projData);
+
+    const { data: taskData } = await supabase.from('tasks').select('*');
 
   // --- FUNÇÕES DE DATA ---
   const toISODate = useCallback((date: Date): string => {
