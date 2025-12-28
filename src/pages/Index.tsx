@@ -131,6 +131,7 @@ const Index = () => {
             toISODate={toISODate}
             getTasksForDate={getTasksForDate}
             addTask={addTask}
+            deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
           />
@@ -143,6 +144,7 @@ const Index = () => {
             startOfWeek={startOfWeek}
             getTasksForDate={getTasksForDate}
             addTask={addTask}
+            deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
           />
@@ -154,6 +156,7 @@ const Index = () => {
             toISODate={toISODate}
             getTasksForDate={getTasksForDate}
             addTask={addTask}
+            deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
           />
