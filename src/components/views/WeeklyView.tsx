@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Task, TaskType } from '@/types/bujo';
 import { TaskItem } from '@/components/TaskItem';
 import { AddTaskForm } from '@/components/AddTaskForm';
@@ -20,22 +20,33 @@ export function WeeklyView({
 }: WeeklyViewProps) {
   const [viewDate, setViewDate] = useState(new Date(currentDate));
   const weekStartDate = startOfWeek(viewDate);
-  const dateStr = toISODate(weekStartDate);
-  const tasks = getTasksForDate(dateStr);
+
+  // --- NOVA LÓGICA DE INTEGRAÇÃO ---
+  // Gera os 7 dias da semana e busca as tarefas de cada um
+  const allWeekTasks = useMemo(() => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStartDate);
+      d.setDate(d.getDate() + i);
+      const dStr = toISODate(d);
+      const tasksForDay = getTasksForDate(dStr).map(t => ({ ...t, originalDate: dStr }));
+      days.push(...tasksForDay);
+    }
+    return days;
+  }, [weekStartDate, toISODate, getTasksForDate]);
+  // ---------------------------------
 
   const handleSmartAdd = (currentListDate: string, content: string, type: TaskType, specificDate?: string) => {
     if (specificDate) {
-      // ATENÇÃO: Se o usuário selecionar uma data específica, salvamos NAQUELA data (Daily Log)
-      // Ou seja, vai sumir desta lista (que é da semana geral) e aparecerá no Daily View daquele dia.
-      // Isso é o comportamento correto de um banco de dados.
       addTask(specificDate, content, type);
     } else {
+      // Se não especificar data, salva na segunda-feira da semana (como master list da semana)
       addTask(currentListDate, content, type);
     }
   };
 
   const handleToggleDone = (dStr: string, taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
+    const task = allWeekTasks.find(t => t.id === taskId);
     if (task) updateTaskStatus(dStr, taskId, task.status === 'done' ? 'open' : 'done');
   };
 
@@ -53,16 +64,25 @@ export function WeeklyView({
       </div>
 
       <div className="flex-1 overflow-y-auto hide-scrollbar">
-        {tasks.length === 0 ? <p className="text-muted-foreground text-sm italic text-center mt-10">Lista da semana vazia.</p> : (
+        {allWeekTasks.length === 0 ? <p className="text-muted-foreground text-sm italic text-center mt-10">Semana livre.</p> : (
           <div className="space-y-0.5">
-            {tasks.map(task => (
-              <TaskItem key={task.id} task={task} dateStr={dateStr} onToggleDone={handleToggleDone} onCancel={(d, id) => updateTaskStatus(d, id, 'canceled')} onMigrate={onMigrate} onDelete={deleteTask} />
+            {allWeekTasks.map(task => (
+              <TaskItem 
+                key={`${task.originalDate}-${task.id}`} // Chave única combinando data e ID
+                task={task} 
+                dateStr={task.originalDate} // Passa a data real da tarefa
+                onToggleDone={handleToggleDone} 
+                onCancel={(d, id) => updateTaskStatus(d, id, 'canceled')} 
+                onMigrate={onMigrate} 
+                onDelete={deleteTask}
+                showDate={true} // Mostra a data visualmente
+              />
             ))}
           </div>
         )}
       </div>
       <div className="pt-4 border-t border-border mt-4">
-        <AddTaskForm dateStr={dateStr} onAdd={handleSmartAdd} />
+        <AddTaskForm dateStr={toISODate(weekStartDate)} onAdd={handleSmartAdd} />
       </div>
     </div>
   );
