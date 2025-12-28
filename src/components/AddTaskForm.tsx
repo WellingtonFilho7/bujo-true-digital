@@ -1,10 +1,9 @@
 import { useState, KeyboardEvent } from 'react';
 import { TaskType, TYPE_SYMBOLS } from '@/types/bujo';
-import { Calendar } from 'lucide-react';
+import { Calendar, Plus } from 'lucide-react';
 
 interface AddTaskFormProps {
   dateStr: string;
-  // Agora aceita um argumento opcional 'targetDate'
   onAdd: (dateStr: string, content: string, type: TaskType, targetDate?: string) => void;
   compact?: boolean;
 }
@@ -15,13 +14,14 @@ export function AddTaskForm({ dateStr, onAdd, compact = false }: AddTaskFormProp
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [optionalDate, setOptionalDate] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault(); // Previne recarregar a página
     if (!content.trim()) return;
 
-    // Passamos a data escolhida (se houver) para a função onAdd
-    // O componente Pai decidirá onde salvar
+    // Envia a tarefa para o Supabase através do hook useBujo
     onAdd(dateStr, content.trim(), type, optionalDate || undefined);
     
+    // Limpa o formulário após salvar
     setContent('');
     setOptionalDate('');
     setShowDatePicker(false);
@@ -37,12 +37,13 @@ export function AddTaskForm({ dateStr, onAdd, compact = false }: AddTaskFormProp
   const types: TaskType[] = ['task', 'event', 'note'];
 
   return (
-    <div className={`flex flex-col gap-2 mt-2`}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-2">
       <div className={`flex items-center gap-2 ${compact ? 'flex-col' : ''}`}>
         <div className="flex gap-0.5 shrink-0">
           {types.map(t => (
             <button
               key={t}
+              type="button" // Evita que este botão submeta o form
               onClick={() => setType(t)}
               className={`w-6 h-6 text-sm font-bold rounded transition-colors ${
                 type === t ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'
@@ -55,6 +56,8 @@ export function AddTaskForm({ dateStr, onAdd, compact = false }: AddTaskFormProp
 
         <input
           type="text"
+          id="task-content-input"
+          name="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -63,6 +66,7 @@ export function AddTaskForm({ dateStr, onAdd, compact = false }: AddTaskFormProp
         />
 
         <button
+          type="button"
           onClick={() => setShowDatePicker(!showDatePicker)}
           className={`p-1 rounded transition-colors ${optionalDate ? 'text-primary font-bold' : 'text-muted-foreground hover:text-foreground'}`}
         >
@@ -70,11 +74,11 @@ export function AddTaskForm({ dateStr, onAdd, compact = false }: AddTaskFormProp
         </button>
 
         <button
-          onClick={handleSubmit}
+          type="submit"
           disabled={!content.trim()}
-          className="px-3 py-1 text-xs font-bold bg-foreground text-background disabled:opacity-30"
+          className="px-3 py-1 text-xs font-bold bg-foreground text-background disabled:opacity-30 flex items-center gap-1"
         >
-          ADD
+          <Plus className="w-3 h-3" /> ADD
         </button>
       </div>
 
@@ -83,12 +87,13 @@ export function AddTaskForm({ dateStr, onAdd, compact = false }: AddTaskFormProp
           <span className="text-muted-foreground">Agendar para:</span>
           <input
             type="date"
+            name="optionalDate"
             value={optionalDate}
             onChange={(e) => setOptionalDate(e.target.value)}
             className="bg-transparent border border-input rounded p-1 text-foreground"
           />
         </div>
       )}
-    </div>
+    </form>
   );
 }
