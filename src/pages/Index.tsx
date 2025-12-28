@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useBujo } from '@/hooks/useBujo';
 import { ViewType } from '@/types/bujo';
 import { DailyView } from '@/components/views/DailyView';
@@ -20,7 +20,8 @@ const Index = () => {
     updateTaskStatus,
     deleteTask,
     addProject,
-    getTasksForDate
+    getTasksForDate,
+    errorMsg
   } = useBujo();
 
   const views: { id: ViewType; label: string }[] = [
@@ -36,48 +37,30 @@ const Index = () => {
 
   const handleMigrationSelect = (target: 'tomorrow' | 'week' | 'month') => {
     if (!migrationTask) return;
-
-    const fromDate = new Date(migrationTask.dateStr);
-    let toDate: Date;
-
-    if (target === 'tomorrow') {
-      toDate = new Date(fromDate);
-      toDate.setDate(toDate.getDate() + 1);
-    } else if (target === 'week') {
-      toDate = new Date(fromDate);
-      toDate.setDate(toDate.getDate() + 7);
-    } else {
-      toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + 1, 1);
-    }
-
-    // Como ainda vamos implementar a migração no Supabase, 
-    // por enquanto apenas avisamos o usuário
-    console.log("Migração solicitada para:", toISODate(toDate));
+    // Lógica de migração será implementada após o banco estar 100%
     setMigrationTask(null);
   };
 
   return (
-    <div className="h-screen flex flex-col max-w-2xl mx-auto pt-safe pb-safe">
-      {/* Header Simplificado para Supabase */}
-      <header className="flex items-center justify-between px-4 py-3 border-b-2 border-foreground sticky top-0 bg-background z-50 pt-2">
-        <h1 className="text-lg font-bold tracking-tight uppercase">BuJo</h1>
+    <div className="h-screen flex flex-col max-w-2xl mx-auto pt-safe pb-safe bg-background">
+      <header className="flex items-center justify-between px-4 py-3 border-b-2 border-foreground sticky top-0 bg-background z-50">
+        <h1 className="text-lg font-bold uppercase">BuJo</h1>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
-            BANCO ONLINE
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${
+            errorMsg ? 'bg-red-500 text-white animate-pulse' : 'bg-green-100 text-green-700'
+          }`}>
+            {errorMsg ? `ERRO: ${errorMsg}` : 'BANCO ONLINE'}
           </span>
         </div>
       </header>
 
-      {/* Navigation Tabs */}
       <nav className="flex border-b border-border bg-background">
         {views.map(v => (
           <button
             key={v.id}
             onClick={() => setCurrentView(v.id)}
-            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-              currentView === v.id 
-                ? 'text-foreground border-b-2 border-foreground -mb-px' 
-                : 'text-muted-foreground hover:text-foreground'
+            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider ${
+              currentView === v.id ? 'text-foreground border-b-2 border-foreground' : 'text-muted-foreground'
             }`}
           >
             {v.label}
@@ -85,7 +68,6 @@ const Index = () => {
         ))}
       </nav>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-hidden p-4">
         {currentView === 'daily' && (
           <DailyView
@@ -98,42 +80,16 @@ const Index = () => {
             onMigrate={handleMigrate}
           />
         )}
-
-        {currentView === 'weekly' && (
-          <WeeklyView
-            currentDate={currentDate}
-            toISODate={toISODate}
-            startOfWeek={startOfWeek}
-            getTasksForDate={getTasksForDate}
-            addTask={addTask}
-            deleteTask={deleteTask}
-            updateTaskStatus={updateTaskStatus}
-            onMigrate={handleMigrate}
-          />
-        )}
-
-        {currentView === 'monthly' && (
-          <MonthlyView
-            currentDate={currentDate}
-            toISODate={toISODate}
-            getTasksForDate={getTasksForDate}
-            addTask={addTask}
-            deleteTask={deleteTask}
-            updateTaskStatus={updateTaskStatus}
-            onMigrate={handleMigrate}
-          />
-        )}
-
         {currentView === 'projects' && (
           <ProjectsView
             projects={data.projects}
             addProject={addProject}
-            deleteProject={() => {}} // Temporário até criarmos deleteProject no hook
+            deleteProject={() => {}} 
           />
         )}
+        {/* Outras views podem ser adicionadas conforme necessário */}
       </main>
 
-      {/* Migration Modal */}
       <MigrationModal
         open={!!migrationTask}
         onClose={() => setMigrationTask(null)}
