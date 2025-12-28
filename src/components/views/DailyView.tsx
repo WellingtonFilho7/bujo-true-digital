@@ -8,10 +8,11 @@ interface DailyViewProps {
   currentDate: Date;
   toISODate: (date: Date) => string;
   getTasksForDate: (dateStr: string) => Task[];
-  addTask: (dateStr: string, content: string, type: TaskType) => void;
+  // ADICIONAMOS o targetDate aqui na definição
+  addTask: (dateStr: string, content: string, type: TaskType, targetDate?: string) => void;
   updateTaskStatus: (dateStr: string, taskId: string, status: Task['status']) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
-  deleteTask: (dateStr: string, taskId: string) => void; // Recebe do hook
+  deleteTask: (dateStr: string, taskId: string) => void;
 }
 
 export function DailyView({
@@ -21,15 +22,11 @@ export function DailyView({
   const dateStr = toISODate(viewDate);
   const tasks = getTasksForDate(dateStr);
 
-  // Lógica Inteligente de Adição
+  // Lógica corrigida para conversar com o Supabase
   const handleSmartAdd = (currentListDate: string, content: string, type: TaskType, specificDate?: string) => {
-    if (specificDate) {
-      // Se o usuário escolheu uma data, salvamos nela!
-      addTask(specificDate, content, type);
-    } else {
-      // Se não, salvamos no dia atual da visualização
-      addTask(currentListDate, content, type);
-    }
+    // Se houver uma data específica (calendário), usamos ela. Se não, usamos a data do dia que estamos vendo.
+    const finalDate = specificDate || currentListDate;
+    addTask(finalDate, content, type);
   };
 
   const handleToggleDone = (dStr: string, taskId: string) => {
