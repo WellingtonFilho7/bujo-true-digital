@@ -66,7 +66,12 @@ export function useBujo() {
   }, [fetchData]);
 
   const addTask = async (dateStr: string, content: string, type: TaskType, targetDate?: string) => {
-    if (!supabase) return;
+    console.log("Tentando salvar no Supabase:", { dateStr, content, type }); // Adicione isso!
+    if (!supabase) {
+        console.error("Supabase não encontrado no momento do clique!");
+        return;
+    }
+
     
     // Se o usuário usou o "Agendar para", usamos a targetDate, senão a dateStr normal
     const finalDate = targetDate || dateStr;
