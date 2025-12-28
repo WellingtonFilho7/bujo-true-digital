@@ -2,9 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Task, Project, TaskType } from '@/types/bujo';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Lógica Híbrida: Tenta ler do Vite (import.meta.env) ou do Next.js (process.env)
+// @ts-ignore - Ignora avisos de tipos para compatibilidade entre frameworks
+const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || 
+                    (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_URL) || '';
 
+// @ts-ignore
+const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) || 
+                        (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) || '';
+
+// Criando o cliente apenas se tivermos as chaves
 const supabase = (supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
@@ -15,6 +22,7 @@ export function useBujo() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Formata data para o padrão do banco (YYYY-MM-DD) respeitando o fuso local
   const toISODate = useCallback((date: Date): string => {
     const offset = date.getTimezoneOffset();
     const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
@@ -29,8 +37,12 @@ export function useBujo() {
     return d;
   }, []);
 
+  // Busca dados do Supabase
   const fetchData = useCallback(async () => {
-    if (!supabase) return;
+    if (!supabase) {
+      setErrorMsg("Sem conexão");
+      return;
+    }
 
     const { data: projData } = await supabase.from('projects').select('*');
     if (projData) setProjects(projData);
@@ -63,6 +75,7 @@ export function useBujo() {
     fetchData();
   }, [fetchData]);
 
+  // Adiciona tarefa
   const addTask = async (dateStr: string, content: string, type: TaskType, targetDate?: string) => {
     if (!supabase) {
       setErrorMsg("Sem conexão");
