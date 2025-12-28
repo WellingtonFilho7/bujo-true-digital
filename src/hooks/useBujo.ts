@@ -1,13 +1,11 @@
-// src/hooks/useBujo.ts
-
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Task, Project, TaskType } from '@/types/bujo';
 
+// Configuração do cliente Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-// Só tenta criar o cliente se as chaves existirem
 const supabase = (supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
@@ -17,19 +15,7 @@ export function useBujo() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const fetchData = useCallback(async () => {
-    // Se o supabase não estiver configurado, não faz nada (evita tela branca)
-    if (!supabase) {
-      console.warn("Supabase não configurado. Verifique as variáveis de ambiente.");
-      return;
-    }
-
-    const { data: projData } = await supabase.from('projects').select('*');
-    if (projData) setProjects(projData);
-
-    const { data: taskData } = await supabase.from('tasks').select('*');
-
-  // --- FUNÇÕES DE DATA ---
+  // --- FUNÇÕES DE DATA (LÓGICA LOCAL) ---
   const toISODate = useCallback((date: Date): string => {
     const offset = date.getTimezoneOffset();
     const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
@@ -44,16 +30,20 @@ export function useBujo() {
     return d;
   }, []);
 
-  // --- BUSCAR DADOS DO SUPABASE ---
+  // --- BUSCAR DADOS DO BANCO ---
   const fetchData = useCallback(async () => {
-    // Buscar Projetos
+    if (!supabase) {
+      console.warn("Supabase não configurado corretamente.");
+      return;
+    }
+
+    // Busca Projetos
     const { data: projData } = await supabase.from('projects').select('*');
     if (projData) setProjects(projData);
 
-    // Buscar Tarefas
+    // Busca Tarefas
     const { data: taskData } = await supabase.from('tasks').select('*');
     if (taskData) {
-      // Organiza as tarefas por data para o app entender
       const organized: Record<string, Task[]> = {};
       taskData.forEach((t: any) => {
         const d = t.date_str;
@@ -70,36 +60,40 @@ export function useBujo() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  // Carrega os dados assim que o app abre
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  // --- AÇÕES DE TAREFAS ---
+  // --- AÇÕES (SALVAR NO BANCO) ---
   const addTask = async (dateStr: string, content: string, type: TaskType, projectId?: string) => {
-    const { data, error } = await supabase.from('tasks').insert([{
+    if (!supabase) return;
+    const { error } = await supabase.from('tasks').insert([{
       content,
       type,
       status: 'open',
       date_str: dateStr,
       project_id: projectId || null
-    }]).select();
-
-    if (!error) fetchData(); // Recarrega para mostrar a nova tarefa
+    }]);
+    if (!error) fetchData();
   };
 
   const updateTaskStatus = async (dateStr: string, taskId: string, status: Task['status']) => {
+    if (!supabase) return;
     const { error } = await supabase.from('tasks')
       .update({ status })
       .eq('id', taskId);
-    
     if (!error) fetchData();
   };
 
   const deleteTask = async (dateStr: string, taskId: string) => {
+    if (!supabase) return;
     const { error } = await supabase.from('tasks').delete().eq('id', taskId);
     if (!error) fetchData();
   };
 
-  // --- AÇÕES DE PROJETOS ---
   const addProject = async (name: string) => {
+    if (!supabase) return;
     const { error } = await supabase.from('projects').insert([{ name }]);
     if (!error) fetchData();
   };
