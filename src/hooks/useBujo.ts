@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BujoData, Task, TaskType, Project } from '@/types/bujo';
+import { BujoData, Task, TaskType } from '@/types/bujo';
 
 const STORAGE_KEY = 'bujo-data-v3';
 
@@ -72,6 +72,18 @@ export function useBujo() {
     }));
   }, []);
 
+  // --- AQUI ESTAVA FALTANDO ESSA FUNÇÃO ---
+  const deleteTask = useCallback((dateStr: string, taskId: string) => {
+    setData(prev => ({
+      ...prev,
+      tasks: {
+        ...prev.tasks,
+        [dateStr]: (prev.tasks[dateStr] || []).filter(t => t.id !== taskId)
+      }
+    }));
+  }, []);
+  // ----------------------------------------
+
   const migrateTask = useCallback((fromDate: string, taskId: string, toDate: string) => {
     setData(prev => {
       const task = prev.tasks[fromDate]?.find(t => t.id === taskId);
@@ -143,6 +155,7 @@ export function useBujo() {
     startOfWeek,
     addTask,
     updateTaskStatus,
+    deleteTask, // <--- E FALTAVA EXPORTAR ELA AQUI
     migrateTask,
     addProject,
     deleteProject,
