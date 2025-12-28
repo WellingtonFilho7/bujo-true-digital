@@ -64,9 +64,11 @@ export function useBujo() {
     fetchData();
   }, [fetchData]);
 
-  // Adiciona uma nova tarefa ao banco
+ // Adiciona uma nova tarefa ao banco
   const addTask = async (dateStr: string, content: string, type: TaskType, projectId?: string) => {
     if (!supabase) return;
+
+    // REMOVEMOS o ID daqui para o banco gerar automaticamente (UUID)
     const { error } = await supabase.from('tasks').insert([{
       content,
       type,
@@ -74,7 +76,12 @@ export function useBujo() {
       date_str: dateStr,
       project_id: projectId || null
     }]);
-    if (!error) fetchData();
+
+    if (error) {
+      console.error("Erro ao salvar tarefa:", error.message);
+    } else {
+      fetchData();
+    }
   };
 
   // Atualiza o status de uma tarefa (ex: marcar como concluída)
