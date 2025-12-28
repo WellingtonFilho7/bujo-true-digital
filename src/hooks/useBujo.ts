@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Task, Project, TaskType } from '@/types/bujo';
 
-// Configuração do cliente Supabase
+// Buscando as variáveis que você configurou na Vercel
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
+// Criando a conexão com o banco de dados
 const supabase = (supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
@@ -15,13 +16,14 @@ export function useBujo() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  // --- FUNÇÕES DE DATA (LÓGICA LOCAL) ---
+  // Função para formatar a data (ajustada para o fuso horário local)
   const toISODate = useCallback((date: Date): string => {
     const offset = date.getTimezoneOffset();
     const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
     return adjustedDate.toISOString().split('T')[0];
   }, []);
 
+  // Função para calcular o início da semana
   const startOfWeek = useCallback((date: Date): Date => {
     const d = new Date(date);
     const day = d.getDay();
@@ -30,12 +32,9 @@ export function useBujo() {
     return d;
   }, []);
 
-  // --- BUSCAR DADOS DO BANCO ---
+  // Busca todos os dados do Supabase
   const fetchData = useCallback(async () => {
-    if (!supabase) {
-      console.warn("Supabase não configurado corretamente.");
-      return;
-    }
+    if (!supabase) return;
 
     // Busca Projetos
     const { data: projData } = await supabase.from('projects').select('*');
@@ -60,12 +59,12 @@ export function useBujo() {
     }
   }, []);
 
-  // Carrega os dados assim que o app abre
+  // Carrega os dados automaticamente ao abrir o app
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // --- AÇÕES (SALVAR NO BANCO) ---
+  // Adiciona uma nova tarefa ao banco
   const addTask = async (dateStr: string, content: string, type: TaskType, projectId?: string) => {
     if (!supabase) return;
     const { error } = await supabase.from('tasks').insert([{
@@ -78,6 +77,7 @@ export function useBujo() {
     if (!error) fetchData();
   };
 
+  // Atualiza o status de uma tarefa (ex: marcar como concluída)
   const updateTaskStatus = async (dateStr: string, taskId: string, status: Task['status']) => {
     if (!supabase) return;
     const { error } = await supabase.from('tasks')
@@ -86,12 +86,14 @@ export function useBujo() {
     if (!error) fetchData();
   };
 
+  // Exclui uma tarefa permanentemente
   const deleteTask = async (dateStr: string, taskId: string) => {
     if (!supabase) return;
     const { error } = await supabase.from('tasks').delete().eq('id', taskId);
     if (!error) fetchData();
   };
 
+  // Adiciona um novo projeto
   const addProject = async (name: string) => {
     if (!supabase) return;
     const { error } = await supabase.from('projects').insert([{ name }]);
