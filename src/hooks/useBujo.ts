@@ -1,3 +1,5 @@
+// ARQUIVO: src/hooks/useBujo.ts
+
 import { useState, useEffect, useCallback } from 'react';
 import { BujoData, Task, TaskType } from '@/types/bujo';
 
@@ -29,9 +31,14 @@ export function useBujo() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data]);
 
+  // --- CORREÇÃO APLICADA AQUI ---
+  // Antes usava UTC, agora ajusta para o fuso horário local
   const toISODate = useCallback((date: Date): string => {
-    return date.toISOString().split('T')[0];
+    const offset = date.getTimezoneOffset();
+    const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
+    return adjustedDate.toISOString().split('T')[0];
   }, []);
+  // -----------------------------
 
   const startOfWeek = useCallback((date: Date): Date => {
     const d = new Date(date);
@@ -72,7 +79,6 @@ export function useBujo() {
     }));
   }, []);
 
-  // --- AQUI ESTAVA FALTANDO ESSA FUNÇÃO ---
   const deleteTask = useCallback((dateStr: string, taskId: string) => {
     setData(prev => ({
       ...prev,
@@ -82,7 +88,6 @@ export function useBujo() {
       }
     }));
   }, []);
-  // ----------------------------------------
 
   const migrateTask = useCallback((fromDate: string, taskId: string, toDate: string) => {
     setData(prev => {
@@ -90,13 +95,13 @@ export function useBujo() {
       if (!task) return prev;
 
       const newTasks = { ...prev.tasks };
-      
-      // Update original task status
+
+      // Marca a original como migrada
       newTasks[fromDate] = newTasks[fromDate].map(t =>
         t.id === taskId ? { ...t, status: 'migrated' as const } : t
       );
-      
-      // Add to new date
+
+      // Cria cópia na nova data
       const targetTasks = newTasks[toDate] || [];
       newTasks[toDate] = [...targetTasks, {
         ...task,
@@ -155,7 +160,7 @@ export function useBujo() {
     startOfWeek,
     addTask,
     updateTaskStatus,
-    deleteTask, // <--- E FALTAVA EXPORTAR ELA AQUI
+    deleteTask,
     migrateTask,
     addProject,
     deleteProject,
