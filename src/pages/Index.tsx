@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useBujo } from '@/hooks/useBujo';
 import { ViewType } from '@/types/bujo';
 import { DailyView } from '@/components/views/DailyView';
@@ -10,7 +10,6 @@ import { MigrationModal } from '@/components/MigrationModal';
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('daily');
   const [migrationTask, setMigrationTask] = useState<{ dateStr: string; taskId: string } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     data,
@@ -19,13 +18,9 @@ const Index = () => {
     startOfWeek,
     addTask,
     updateTaskStatus,
-    migrateTask,
-    deleteTask, // Agora essa função existe no useBujo!
+    deleteTask,
     addProject,
-    deleteProject,
-    getTasksForDate,
-    exportData,
-    importData
+    getTasksForDate
   } = useBujo();
 
   const views: { id: ViewType; label: string }[] = [
@@ -55,55 +50,21 @@ const Index = () => {
       toDate = new Date(fromDate.getFullYear(), fromDate.getMonth() + 1, 1);
     }
 
-    migrateTask(migrationTask.dateStr, migrationTask.taskId, toISODate(toDate));
+    // Como ainda vamos implementar a migração no Supabase, 
+    // por enquanto apenas avisamos o usuário
+    console.log("Migração solicitada para:", toISODate(toDate));
     setMigrationTask(null);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      importData(file);
-    }
-  };
-
-  // Add PWA install prompt
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
   return (
     <div className="h-screen flex flex-col max-w-2xl mx-auto pt-safe pb-safe">
-      {/* Header */}
+      {/* Header Simplificado para Supabase */}
       <header className="flex items-center justify-between px-4 py-3 border-b-2 border-foreground sticky top-0 bg-background z-50 pt-2">
         <h1 className="text-lg font-bold tracking-tight uppercase">BuJo</h1>
-        
-        <div className="flex items-center gap-3 text-xs">
-          <button 
-            onClick={exportData}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Salvar
-          </button>
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Restaurar
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/json"
-            onChange={handleFileChange}
-            className="hidden"
-          />
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
+            BANCO ONLINE
+          </span>
         </div>
       </header>
 
@@ -167,7 +128,7 @@ const Index = () => {
           <ProjectsView
             projects={data.projects}
             addProject={addProject}
-            deleteProject={deleteProject}
+            deleteProject={() => {}} // Temporário até criarmos deleteProject no hook
           />
         )}
       </main>
