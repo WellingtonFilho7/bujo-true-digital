@@ -1,44 +1,23 @@
-// ARQUIVO: src/hooks/useBujo.ts
-
 import { useState, useEffect, useCallback } from 'react';
-import { BujoData, Task, TaskType } from '@/types/bujo';
+import { createClient } from '@supabase/supabase-js';
+import { Task, Project, TaskType } from '@/types/bujo';
 
-const STORAGE_KEY = 'bujo-data-v3';
-
-const initialData: BujoData = {
-  tasks: {},
-  projects: []
-};
+// Conecta ao seu banco de dados usando as chaves do arquivo .env
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export function useBujo() {
-  const [data, setData] = useState<BujoData>(initialData);
+  const [tasks, setTasks] = useState<Record<string, Task[]>>({});
+  const [projects, setProjects] = useState<Project[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setData(JSON.parse(stored));
-      } catch (e) {
-        console.error('Error loading BuJo data:', e);
-      }
-    }
-  }, []);
-
-  // Save to localStorage whenever data changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
-
-  // --- CORREÇÃO APLICADA AQUI ---
-  // Antes usava UTC, agora ajusta para o fuso horário local
+  // --- FUNÇÕES DE DATA ---
   const toISODate = useCallback((date: Date): string => {
     const offset = date.getTimezoneOffset();
     const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
     return adjustedDate.toISOString().split('T')[0];
   }, []);
-  // -----------------------------
 
   const startOfWeek = useCallback((date: Date): Date => {
     const d = new Date(date);
@@ -48,112 +27,68 @@ export function useBujo() {
     return d;
   }, []);
 
-  const addTask = useCallback((dateStr: string, content: string, type: TaskType, projectId?: string) => {
-    setData(prev => {
-      const tasks = prev.tasks[dateStr] || [];
-      return {
-        ...prev,
-        tasks: {
-          ...prev.tasks,
-          [dateStr]: [...tasks, {
-            id: Math.random().toString(36).substr(2, 9),
-            content,
-            type,
-            status: 'open',
-            projectId: projectId || null
-          }]
-        }
-      };
-    });
+  // --- BUSCAR DADOS DO SUPABASE ---
+  const fetchData = useCallback(async () => {
+    // Buscar Projetos
+    const { data: projData } = await supabase.from('projects').select('*');
+    if (projData) setProjects(projData);
+
+    // Buscar Tarefas
+    const { data: taskData } = await supabase.from('tasks').select('*');
+    if (taskData) {
+      // Organiza as tarefas por data para o app entender
+      const organized: Record<string, Task[]> = {};
+      taskData.forEach((t: any) => {
+        const d = t.date_str;
+        if (!organized[d]) organized[d] = [];
+        organized[d].push({
+          id: t.id,
+          content: t.content,
+          type: t.type,
+          status: t.status,
+          projectId: t.project_id
+        });
+      });
+      setTasks(organized);
+    }
   }, []);
 
-  const updateTaskStatus = useCallback((dateStr: string, taskId: string, status: Task['status']) => {
-    setData(prev => ({
-      ...prev,
-      tasks: {
-        ...prev.tasks,
-        [dateStr]: (prev.tasks[dateStr] || []).map(t =>
-          t.id === taskId ? { ...t, status } : t
-        )
-      }
-    }));
-  }, []);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  const deleteTask = useCallback((dateStr: string, taskId: string) => {
-    setData(prev => ({
-      ...prev,
-      tasks: {
-        ...prev.tasks,
-        [dateStr]: (prev.tasks[dateStr] || []).filter(t => t.id !== taskId)
-      }
-    }));
-  }, []);
+  // --- AÇÕES DE TAREFAS ---
+  const addTask = async (dateStr: string, content: string, type: TaskType, projectId?: string) => {
+    const { data, error } = await supabase.from('tasks').insert([{
+      content,
+      type,
+      status: 'open',
+      date_str: dateStr,
+      project_id: projectId || null
+    }]).select();
 
-  const migrateTask = useCallback((fromDate: string, taskId: string, toDate: string) => {
-    setData(prev => {
-      const task = prev.tasks[fromDate]?.find(t => t.id === taskId);
-      if (!task) return prev;
+    if (!error) fetchData(); // Recarrega para mostrar a nova tarefa
+  };
 
-      const newTasks = { ...prev.tasks };
+  const updateTaskStatus = async (dateStr: string, taskId: string, status: Task['status']) => {
+    const { error } = await supabase.from('tasks')
+      .update({ status })
+      .eq('id', taskId);
+    
+    if (!error) fetchData();
+  };
 
-      // Marca a original como migrada
-      newTasks[fromDate] = newTasks[fromDate].map(t =>
-        t.id === taskId ? { ...t, status: 'migrated' as const } : t
-      );
+  const deleteTask = async (dateStr: string, taskId: string) => {
+    const { error } = await supabase.from('tasks').delete().eq('id', taskId);
+    if (!error) fetchData();
+  };
 
-      // Cria cópia na nova data
-      const targetTasks = newTasks[toDate] || [];
-      newTasks[toDate] = [...targetTasks, {
-        ...task,
-        id: Math.random().toString(36).substr(2, 9),
-        status: 'open' as const
-      }];
-
-      return { ...prev, tasks: newTasks };
-    });
-  }, []);
-
-  const addProject = useCallback((name: string) => {
-    setData(prev => ({
-      ...prev,
-      projects: [...prev.projects, { id: Date.now().toString(), name }]
-    }));
-  }, []);
-
-  const deleteProject = useCallback((projectId: string) => {
-    setData(prev => ({
-      ...prev,
-      projects: prev.projects.filter(p => p.id !== projectId)
-    }));
-  }, []);
-
-  const getTasksForDate = useCallback((dateStr: string): Task[] => {
-    return data.tasks[dateStr] || [];
-  }, [data.tasks]);
-
-  const exportData = useCallback(() => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    const a = document.createElement('a');
-    a.href = dataStr;
-    a.download = 'bujo-backup.json';
-    a.click();
-  }, [data]);
-
-  const importData = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const imported = JSON.parse(e.target?.result as string);
-        setData(imported);
-      } catch (err) {
-        console.error('Error importing data:', err);
-      }
-    };
-    reader.readAsText(file);
-  }, []);
+  // --- AÇÕES DE PROJETOS ---
+  const addProject = async (name: string) => {
+    const { error } = await supabase.from('projects').insert([{ name }]);
+    if (!error) fetchData();
+  };
 
   return {
-    data,
+    data: { tasks, projects },
     currentDate,
     setCurrentDate,
     toISODate,
@@ -161,11 +96,7 @@ export function useBujo() {
     addTask,
     updateTaskStatus,
     deleteTask,
-    migrateTask,
     addProject,
-    deleteProject,
-    getTasksForDate,
-    exportData,
-    importData
+    getTasksForDate: (d: string) => tasks[d] || []
   };
 }
