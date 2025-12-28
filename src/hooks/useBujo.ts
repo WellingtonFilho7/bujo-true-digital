@@ -13,6 +13,7 @@ export function useBujo() {
   const [tasks, setTasks] = useState<Record<string, Task[]>>({});
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const toISODate = useCallback((date: Date): string => {
     const offset = date.getTimezoneOffset();
@@ -37,12 +38,9 @@ export function useBujo() {
     const { data: taskData, error } = await supabase.from('tasks').select('*');
     
     if (error) {
-      console.error("Erro ao buscar tarefas:", error.message);
+      setErrorMsg("Erro ao carregar");
       return;
     }
-
-    // LOG DE TESTE: Vamos ver o que o banco está devolvendo
-    console.log("Tarefas vindas do banco:", taskData);
 
     if (taskData) {
       const organized: Record<string, Task[]> = {};
@@ -66,28 +64,25 @@ export function useBujo() {
   }, [fetchData]);
 
   const addTask = async (dateStr: string, content: string, type: TaskType, targetDate?: string) => {
-    console.log("Tentando salvar no Supabase:", { dateStr, content, type }); // Adicione isso!
     if (!supabase) {
-        console.error("Supabase não encontrado no momento do clique!");
-        return;
+      setErrorMsg("Sem conexão");
+      return;
     }
-
     
-    // Se o usuário usou o "Agendar para", usamos a targetDate, senão a dateStr normal
     const finalDate = targetDate || dateStr;
 
     const { error } = await supabase.from('tasks').insert([{
-      content,
-      type,
+      content: content.trim(),
+      type: type,
       status: 'open',
-      date_str: finalDate,
-      project_id: null
+      date_str: finalDate
     }]);
 
     if (error) {
-      console.error("Erro ao inserir:", error.message);
+      setErrorMsg(error.message);
+      setTimeout(() => setErrorMsg(null), 5000);
     } else {
-      await fetchData(); // Força a atualização da lista
+      await fetchData();
     }
   };
 
@@ -103,6 +98,12 @@ export function useBujo() {
     if (!error) await fetchData();
   };
 
+  const addProject = async (name: string) => {
+    if (!supabase) return;
+    const { error } = await supabase.from('projects').insert([{ name }]);
+    if (!error) await fetchData();
+  };
+
   return {
     data: { tasks, projects },
     currentDate,
@@ -112,6 +113,8 @@ export function useBujo() {
     addTask,
     updateTaskStatus,
     deleteTask,
+    addProject,
+    errorMsg,
     getTasksForDate: (d: string) => tasks[d] || []
   };
 }
