@@ -20,6 +20,7 @@ const Index = () => {
     addTask,
     updateTaskStatus,
     migrateTask,
+    deleteTask, // Agora essa função existe no useBujo!
     addProject,
     deleteProject,
     getTasksForDate,
