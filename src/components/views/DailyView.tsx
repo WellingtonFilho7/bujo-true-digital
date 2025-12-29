@@ -23,7 +23,9 @@ export function DailyView({
   const tasks = getTasksForDate(dateStr);
 
   // Lógica corrigida para conversar com o Supabase
-  const handleSmartAdd = (currentListDate: string, content: string, type: TaskType, specificDate?: string) => {
+const handleSmartAdd = (dateStr: string, content: string, type: TaskType, targetDate?: string) => {
+  addTask(dateStr, content, type, targetDate);
+};
     // Se houver uma data específica (calendário), usamos ela. Se não, usamos a data do dia que estamos vendo.
     const finalDate = specificDate || currentListDate;
     addTask(finalDate, content, type);
