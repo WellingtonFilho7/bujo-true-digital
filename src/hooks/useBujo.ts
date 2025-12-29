@@ -1,121 +1,176 @@
-import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { Task, Project, TaskType } from '@/types/bujo';
+import { useState, useEffect, useCallback } from "react";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { Task, Project, TaskType, TaskStatus } from "@/types/bujo";
 
-// Lógica Híbrida: Tenta ler do Vite (import.meta.env) ou do Next.js (process.env)
-// @ts-ignore - Ignora avisos de tipos para compatibilidade entre frameworks
-const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || 
-                    (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_URL) || '';
+type TasksByDate = Record<string, Task[]>;
 
-// @ts-ignore
-const supabaseAnonKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) || 
-                        (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) || '';
+function createSupabaseClient(): SupabaseClient | null {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-// Criando o cliente apenas se tivermos as chaves
-const supabase = (supabaseUrl && supabaseAnonKey) 
-  ? createClient(supabaseUrl, supabaseAnonKey) 
-  : null;
+  if (!supabaseUrl || !supabaseAnonKey) return null;
+  return createClient(supabaseUrl, supabaseAnonKey);
+}
+
+const supabase = createSupabaseClient();
 
 export function useBujo() {
-  const [tasks, setTasks] = useState<Record<string, Task[]>>({});
+  const [tasks, setTasks] = useState<TasksByDate>({});
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Formata data para o padrão do banco (YYYY-MM-DD) respeitando o fuso local
+  // YYYY-MM-DD no fuso local
   const toISODate = useCallback((date: Date): string => {
     const offset = date.getTimezoneOffset();
-    const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
-    return adjustedDate.toISOString().split('T')[0];
+    const adjustedDate = new Date(date.getTime() - offset * 60 * 1000);
+    return adjustedDate.toISOString().split("T")[0];
   }, []);
 
   const startOfWeek = useCallback((date: Date): Date => {
     const d = new Date(date);
     const day = d.getDay();
-    const diff = (day === 0 ? -6 : 1) - day;
+    const diff = (day === 0 ? -6 : 1) - day; // segunda
     d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
     return d;
   }, []);
 
-  // Busca dados do Supabase
+  const normalizeTasks = useCallback((rows: any[]): TasksByDate => {
+    const organized: TasksByDate = {};
+    for (const t of rows) {
+      // Se date_str vier como "2025-12-29" ok.
+      // Se vier como date do Supabase, normalmente também chega string.
+      const dateStr = String(t.date_str);
+
+      if (!organized[dateStr]) organized[dateStr] = [];
+      organized[dateStr].push({
+        id: t.id,
+        content: t.content,
+        type: t.type as TaskType,
+        status: t.status as TaskStatus,
+        projectId: t.project_id ?? null,
+      });
+    }
+    return organized;
+  }, []);
+
   const fetchData = useCallback(async () => {
     if (!supabase) {
-      setErrorMsg("Sem conexão");
+      setErrorMsg("Sem conexão (env do Supabase ausente)");
       return;
     }
 
-    const { data: projData } = await supabase.from('projects').select('*');
-    if (projData) setProjects(projData);
+    setErrorMsg(null);
 
-    const { data: taskData, error } = await supabase.from('tasks').select('*');
-    
-    if (error) {
-      setErrorMsg("Erro ao carregar");
+    const [{ data: projData, error: projErr }, { data: taskData, error: taskErr }] =
+      await Promise.all([
+        supabase.from("projects").select("*").order("created_at", { ascending: true }),
+        supabase.from("tasks").select("*").order("date_str", { ascending: true }),
+      ]);
+
+    if (projErr || taskErr) {
+      setErrorMsg(taskErr?.message || projErr?.message || "Erro ao carregar");
       return;
     }
 
-    if (taskData) {
-      const organized: Record<string, Task[]> = {};
-      taskData.forEach((t: any) => {
-        const d = t.date_str;
-        if (!organized[d]) organized[d] = [];
-        organized[d].push({
-          id: t.id,
-          content: t.content,
-          type: t.type as TaskType,
-          status: t.status,
-          projectId: t.project_id
-        });
-      });
-      setTasks(organized);
-    }
-  }, []);
+    if (projData) setProjects(projData as Project[]);
+    if (taskData) setTasks(normalizeTasks(taskData));
+  }, [normalizeTasks]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Adiciona tarefa
-  const addTask = async (dateStr: string, content: string, type: TaskType, targetDate?: string) => {
-    if (!supabase) {
-      setErrorMsg("Sem conexão");
-      return;
-    }
-    
-    const finalDate = targetDate || dateStr;
+  const addTask = useCallback(
+    async (dateStr: string, content: string, type: TaskType, targetDate?: string) => {
+      if (!supabase) {
+        setErrorMsg("Sem conexão");
+        return;
+      }
 
-    const { error } = await supabase.from('tasks').insert([{
-      content: content.trim(),
-      type: type,
-      status: 'open',
-      date_str: finalDate
-    }]);
+      const finalDate = (targetDate || dateStr).trim();
+      const trimmed = content.trim();
+      if (!trimmed) return;
 
-    if (error) {
-      setErrorMsg(error.message);
-      setTimeout(() => setErrorMsg(null), 5000);
-    } else {
+      const { error } = await supabase.from("tasks").insert([
+        {
+          content: trimmed,
+          type,
+          status: "open",
+          date_str: finalDate,
+        },
+      ]);
+
+      if (error) {
+        setErrorMsg(error.message);
+        setTimeout(() => setErrorMsg(null), 5000);
+        return;
+      }
+
       await fetchData();
-    }
-  };
+    },
+    [fetchData]
+  );
 
-  const updateTaskStatus = async (dateStr: string, taskId: string, status: Task['status']) => {
-    if (!supabase) return;
-    const { error } = await supabase.from('tasks').update({ status }).eq('id', taskId);
-    if (!error) await fetchData();
-  };
+  const updateTaskStatus = useCallback(
+    async (dateStr: string, taskId: string, status: TaskStatus) => {
+      if (!supabase) return;
 
-  const deleteTask = async (dateStr: string, taskId: string) => {
-    if (!supabase) return;
-    const { error } = await supabase.from('tasks').delete().eq('id', taskId);
-    if (!error) await fetchData();
-  };
+      const { error } = await supabase.from("tasks").update({ status }).eq("id", taskId);
 
-  const addProject = async (name: string) => {
-    if (!supabase) return;
-    const { error } = await supabase.from('projects').insert([{ name }]);
-    if (!error) await fetchData();
-  };
+      if (error) {
+        setErrorMsg(error.message);
+        setTimeout(() => setErrorMsg(null), 5000);
+        return;
+      }
+
+      await fetchData();
+    },
+    [fetchData]
+  );
+
+  const deleteTask = useCallback(
+    async (dateStr: string, taskId: string) => {
+      if (!supabase) return;
+
+      const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+
+      if (error) {
+        setErrorMsg(error.message);
+        setTimeout(() => setErrorMsg(null), 5000);
+        return;
+      }
+
+      await fetchData();
+    },
+    [fetchData]
+  );
+
+  const addProject = useCallback(
+    async (name: string) => {
+      if (!supabase) return;
+
+      const trimmed = name.trim();
+      if (!trimmed) return;
+
+      const { error } = await supabase.from("projects").insert([{ name: trimmed }]);
+
+      if (error) {
+        setErrorMsg(error.message);
+        setTimeout(() => setErrorMsg(null), 5000);
+        return;
+      }
+
+      await fetchData();
+    },
+    [fetchData]
+  );
+
+  const getTasksForDate = useCallback(
+    (d: string) => tasks[d] || [],
+    [tasks]
+  );
 
   return {
     data: { tasks, projects },
@@ -128,6 +183,6 @@ export function useBujo() {
     deleteTask,
     addProject,
     errorMsg,
-    getTasksForDate: (d: string) => tasks[d] || []
+    getTasksForDate,
   };
 }
