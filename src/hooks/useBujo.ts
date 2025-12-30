@@ -36,6 +36,36 @@ export function useBujo() {
     return d;
   }, []);
 
+  type MigrationTarget = 'tomorrow' | 'week' | 'month';
+
+const safeParseISODate = (dateStr: string) => new Date(`${dateStr}T12:00:00`);
+
+const formatISODateLocal = (date: Date): string => {
+  const offset = date.getTimezoneOffset();
+  const adjustedDate = new Date(date.getTime() - offset * 60 * 1000);
+  return adjustedDate.toISOString().split('T')[0];
+};
+
+const computeMigrationTargetDate = (fromDateStr: string, target: MigrationTarget): string => {
+  const base = safeParseISODate(fromDateStr);
+
+  if (target === 'tomorrow') {
+    base.setDate(base.getDate() + 1);
+    return formatISODateLocal(base);
+  }
+
+  if (target === 'week') {
+    base.setDate(base.getDate() + 7);
+    return formatISODateLocal(base);
+  }
+
+  // target === 'month' -> primeiro dia do próximo mês
+  const y = base.getFullYear();
+  const m = base.getMonth();
+  const nextMonthFirstDay = new Date(y, m + 1, 1, 12, 0, 0);
+  return formatISODateLocal(nextMonthFirstDay);
+};
+
   const normalizeTasks = useCallback((rows: any[]): TasksByDate => {
     const organized: TasksByDate = {};
     for (const t of rows) {
@@ -130,6 +160,65 @@ export function useBujo() {
     [fetchData]
   );
 
+  const migrateTask = async (fromDateStr: string, taskId: string, target: 'tomorrow' | 'week' | 'month') => {
+  if (!supabase) {
+    setErrorMsg("Sem conexão");
+    return;
+  }
+
+  try {
+    const targetDateStr = computeMigrationTargetDate(fromDateStr, target);
+
+    // 1) Buscar a tarefa original (pra clonar)
+    const { data: original, error: fetchErr } = await supabase
+      .from('tasks')
+      .select('id, content, type, status, project_id, date_str')
+      .eq('id', taskId)
+      .single();
+
+    if (fetchErr || !original) {
+      setErrorMsg(fetchErr?.message || 'Não achei a tarefa');
+      setTimeout(() => setErrorMsg(null), 5000);
+      return;
+    }
+
+    // 2) Marcar a original como "migrated"
+    const { error: updateErr } = await supabase
+      .from('tasks')
+      .update({ status: 'migrated' })
+      .eq('id', taskId);
+
+    if (updateErr) {
+      setErrorMsg(updateErr.message);
+      setTimeout(() => setErrorMsg(null), 5000);
+      return;
+    }
+
+    // 3) Criar uma nova tarefa no destino (status open)
+    const { error: insertErr } = await supabase
+      .from('tasks')
+      .insert([{
+        content: original.content,
+        type: original.type,
+        status: 'open',
+        date_str: targetDateStr,
+        project_id: original.project_id ?? null
+      }]);
+
+    if (insertErr) {
+      setErrorMsg(insertErr.message);
+      setTimeout(() => setErrorMsg(null), 5000);
+      return;
+    }
+
+    // 4) Recarregar tudo pra sincronizar views
+    await fetchData();
+  } catch (err: any) {
+    setErrorMsg(err?.message || 'Erro inesperado ao migrar');
+    setTimeout(() => setErrorMsg(null), 5000);
+  }
+};
+
   const deleteTask = useCallback(
     async (dateStr: string, taskId: string) => {
       if (!supabase) return;
@@ -180,6 +269,7 @@ export function useBujo() {
     startOfWeek,
     addTask,
     updateTaskStatus,
+    migrateTask,   
     deleteTask,
     addProject,
     errorMsg,
