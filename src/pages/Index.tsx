@@ -74,7 +74,7 @@ const Index = () => {
       </nav>
 
       {/* MAIN: Espaçamento melhorado */}
-      <main className="flex-1 overflow-hidden p-4 sm:p-6">
+  <main className="flex-1 overflow-hidden p-4 sm:p-6">
         {currentView === 'daily' && (
           <DailyView
             currentDate={currentDate}
@@ -84,7 +84,7 @@ const Index = () => {
             deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
-            projects={data.projects} // Passando projetos
+            projects={data.projects} 
           />
         )}
 
@@ -98,7 +98,7 @@ const Index = () => {
             deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
-            projects={data.projects} // Passando projetos
+            projects={data.projects} 
           />
         )}
 
@@ -111,15 +111,20 @@ const Index = () => {
             deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
-            projects={data.projects} // Passando projetos
+            projects={data.projects} 
           />
         )}
 
         {currentView === 'projects' && (
           <ProjectsView
             projects={data.projects}
+            allTasks={data.tasks} // IMPORTANTE: Passando as tarefas aqui
             addProject={addProject}
-            deleteProject={deleteProject} // Passando a função de deletar
+            deleteProject={deleteProject}
+            // Passando funções de manipulação para poder editar dentro da view de projeto
+            updateTaskStatus={updateTaskStatus}
+            onMigrate={handleMigrate}
+            deleteTask={deleteTask}
           />
         )}
       </main>
