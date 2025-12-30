@@ -20,10 +20,9 @@ const Index = () => {
     updateTaskStatus,
     deleteTask,
     addProject,
-    deleteProject, // Importado do hook
+    deleteProject,
     getTasksForDate,
-    migrateTask,
-    errorMsg
+    migrateTask
   } = useBujo();
 
   const views: { id: ViewType; label: string }[] = [
@@ -44,89 +43,93 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col max-w-xl mx-auto bg-background text-foreground font-sans">
+    <div className="h-screen flex flex-col max-w-xl mx-auto text-[#1a1c1e]">
       
-      {/* HEADER: Mais limpo e moderno */}
-      <header className="px-6 py-4 flex items-center justify-between bg-background/80 backdrop-blur-md sticky top-0 z-50 border-b border-border/40">
-        <h1 className="text-xl font-black tracking-tight uppercase">BuJo Digital</h1>
-        {errorMsg && (
-          <span className="text-[10px] px-2 py-1 rounded-full bg-red-500/10 text-red-500 font-bold animate-pulse">
-            {errorMsg}
-          </span>
-        )}
+      {/* HEADER LIMPO */}
+      <header className="pt-12 pb-2 px-6 flex items-end justify-between sticky top-0 bg-white/90 backdrop-blur-sm z-50">
+        <h1 className="text-xl font-black tracking-tight text-[#1a1c1e]">
+          BuJo<span className="text-[#d65a38]">.</span>
+        </h1>
+        {/* Ponto indicador de conexão */}
+        <div className={`w-2 h-2 rounded-full ${!data ? 'bg-red-400' : 'bg-[#6f8b82]'}`} />
       </header>
 
-      {/* NAV: Botões maiores e mais claros */}
-      <nav className="flex p-1 mx-4 mt-2 bg-muted/30 rounded-xl">
+      {/* NAV TERROSA */}
+      <nav className="flex px-6 border-b border-gray-100 overflow-x-auto hide-scrollbar">
         {views.map(v => (
           <button
             key={v.id}
             onClick={() => setCurrentView(v.id)}
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+            className={`mr-8 py-4 text-sm font-bold tracking-wide transition-all relative shrink-0 ${
               currentView === v.id 
-                ? 'bg-background text-foreground shadow-sm' 
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'text-[#d65a38]' // Terracota no ativo
+                : 'text-gray-400 hover:text-[#1a1c1e]'
             }`}
           >
             {v.label}
+            {/* Linha ativa Terracota */}
+            {currentView === v.id && (
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-[#d65a38] rounded-t-full" />
+            )}
           </button>
         ))}
       </nav>
 
-      {/* MAIN: Espaçamento melhorado */}
-  <main className="flex-1 overflow-hidden p-4 sm:p-6">
-        {currentView === 'daily' && (
-          <DailyView
-            currentDate={currentDate}
-            toISODate={toISODate}
-            getTasksForDate={getTasksForDate}
-            addTask={addTask}
-            deleteTask={deleteTask}
-            updateTaskStatus={updateTaskStatus}
-            onMigrate={handleMigrate}
-            projects={data.projects} 
-          />
-        )}
+      {/* MAIN */}
+      <main className="flex-1 overflow-hidden relative bg-white">
+        <div className="h-full overflow-y-auto hide-scrollbar px-5 pt-6 pb-40">
+          {currentView === 'daily' && (
+            <DailyView
+              currentDate={currentDate}
+              toISODate={toISODate}
+              getTasksForDate={getTasksForDate}
+              addTask={addTask}
+              deleteTask={deleteTask}
+              updateTaskStatus={updateTaskStatus}
+              onMigrate={handleMigrate}
+              projects={data.projects} 
+            />
+          )}
 
-        {currentView === 'weekly' && (
-          <WeeklyView
-            currentDate={currentDate}
-            toISODate={toISODate}
-            startOfWeek={startOfWeek}
-            getTasksForDate={getTasksForDate}
-            addTask={addTask}
-            deleteTask={deleteTask}
-            updateTaskStatus={updateTaskStatus}
-            onMigrate={handleMigrate}
-            projects={data.projects} 
-          />
-        )}
+          {currentView === 'weekly' && (
+            <WeeklyView
+              currentDate={currentDate}
+              toISODate={toISODate}
+              startOfWeek={startOfWeek}
+              getTasksForDate={getTasksForDate}
+              addTask={addTask}
+              deleteTask={deleteTask}
+              updateTaskStatus={updateTaskStatus}
+              onMigrate={handleMigrate}
+              projects={data.projects} 
+            />
+          )}
 
-        {currentView === 'monthly' && (
-          <MonthlyView
-            currentDate={currentDate}
-            toISODate={toISODate}
-            getTasksForDate={getTasksForDate}
-            addTask={addTask}
-            deleteTask={deleteTask}
-            updateTaskStatus={updateTaskStatus}
-            onMigrate={handleMigrate}
-            projects={data.projects} 
-          />
-        )}
+          {currentView === 'monthly' && (
+            <MonthlyView
+              currentDate={currentDate}
+              toISODate={toISODate}
+              getTasksForDate={getTasksForDate}
+              addTask={addTask}
+              deleteTask={deleteTask}
+              updateTaskStatus={updateTaskStatus}
+              onMigrate={handleMigrate}
+              projects={data.projects} 
+            />
+          )}
 
-        {currentView === 'projects' && (
-          <ProjectsView
-            projects={data.projects}
-            allTasks={data.tasks} // IMPORTANTE: Passando as tarefas aqui
-            addProject={addProject}
-            deleteProject={deleteProject}
-            // Passando funções de manipulação para poder editar dentro da view de projeto
-            updateTaskStatus={updateTaskStatus}
-            onMigrate={handleMigrate}
-            deleteTask={deleteTask}
-          />
-        )}
+          {currentView === 'projects' && (
+            <ProjectsView
+              projects={data.projects}
+              allTasks={data.tasks}
+              addProject={addProject}
+              deleteProject={deleteProject}
+              updateTaskStatus={updateTaskStatus}
+              onMigrate={handleMigrate}
+              deleteTask={deleteTask}
+            />
+          )}
+        </div>
       </main>
 
       <MigrationModal
