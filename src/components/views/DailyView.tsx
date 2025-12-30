@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Task, TaskType } from '@/types/bujo';
+import { Task, TaskType, Project } from '@/types/bujo'; // Adicionei Project
 import { TaskItem } from '@/components/TaskItem';
 import { AddTaskForm } from '@/components/AddTaskForm';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -8,9 +8,10 @@ interface DailyViewProps {
   currentDate: Date;
   toISODate: (date: Date) => string;
   getTasksForDate: (dateStr: string) => Task[];
-
-  // Aceita targetDate (data opcional do calendário)
-  addTask: (dateStr: string, content: string, type: TaskType, targetDate?: string) => void;
+  projects: Project[]; // Nova prop para receber os projetos
+  
+  // Atualizei a assinatura do addTask para aceitar o projectId no final
+  addTask: (dateStr: string, content: string, type: TaskType, targetDate?: string, projectId?: string) => void;
 
   updateTaskStatus: (dateStr: string, taskId: string, status: Task['status']) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
@@ -21,6 +22,7 @@ export function DailyView({
   currentDate,
   toISODate,
   getTasksForDate,
+  projects, // Recebendo os projetos aqui
   addTask,
   updateTaskStatus,
   onMigrate,
@@ -30,9 +32,15 @@ export function DailyView({
   const dateStr = toISODate(viewDate);
   const tasks = getTasksForDate(dateStr);
 
-  // ✅ Compatível com AddTaskForm: (dateStr, content, type, targetDate?)
-  const handleSmartAdd = (baseDateStr: string, content: string, type: TaskType, targetDate?: string) => {
-    addTask(baseDateStr, content, type, targetDate);
+  // handleSmartAdd atualizado para repassar o projectId
+  const handleSmartAdd = (
+    baseDateStr: string, 
+    content: string, 
+    type: TaskType, 
+    targetDate?: string, 
+    projectId?: string
+  ) => {
+    addTask(baseDateStr, content, type, targetDate, projectId);
   };
 
   const handleToggleDone = (dStr: string, taskId: string) => {
@@ -93,7 +101,8 @@ export function DailyView({
       </div>
 
       <div className="pt-4 border-t border-border mt-4">
-        <AddTaskForm dateStr={dateStr} onAdd={handleSmartAdd} />
+        {/* Passamos 'projects' para o form */}
+        <AddTaskForm dateStr={dateStr} onAdd={handleSmartAdd} projects={projects} />
       </div>
     </div>
   );
