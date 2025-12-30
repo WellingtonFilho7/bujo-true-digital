@@ -15,11 +15,12 @@ const Index = () => {
     data,
     currentDate,
     toISODate,
-    startOfWeek, // Essencial para a WeeklyView
+    startOfWeek,
     addTask,
     updateTaskStatus,
     deleteTask,
     addProject,
+    deleteProject, // Importado do hook
     getTasksForDate,
     migrateTask,
     errorMsg
@@ -29,7 +30,7 @@ const Index = () => {
     { id: 'daily', label: 'Hoje' },
     { id: 'weekly', label: 'Semana' },
     { id: 'monthly', label: 'Mês' },
-    { id: 'projects', label: 'Proj' }
+    { id: 'projects', label: 'Projetos' }
   ];
 
   const handleMigrate = (dateStr: string, taskId: string) => {
@@ -43,25 +44,28 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col max-w-2xl mx-auto pt-safe pb-safe bg-background">
-      <header className="flex items-center justify-between px-4 py-3 border-b-2 border-foreground sticky top-0 bg-background z-50">
-        <h1 className="text-lg font-bold uppercase">BuJo</h1>
-        <div className="flex items-center gap-2">
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${
-            errorMsg ? 'bg-red-500 text-white animate-pulse' : 'bg-green-100 text-green-700'
-          }`}>
-            {errorMsg ? `ERRO: ${errorMsg}` : 'BANCO ONLINE'}
+    <div className="h-screen flex flex-col max-w-xl mx-auto bg-background text-foreground font-sans">
+      
+      {/* HEADER: Mais limpo e moderno */}
+      <header className="px-6 py-4 flex items-center justify-between bg-background/80 backdrop-blur-md sticky top-0 z-50 border-b border-border/40">
+        <h1 className="text-xl font-black tracking-tight uppercase">BuJo Digital</h1>
+        {errorMsg && (
+          <span className="text-[10px] px-2 py-1 rounded-full bg-red-500/10 text-red-500 font-bold animate-pulse">
+            {errorMsg}
           </span>
-        </div>
+        )}
       </header>
 
-      <nav className="flex border-b border-border bg-background">
+      {/* NAV: Botões maiores e mais claros */}
+      <nav className="flex p-1 mx-4 mt-2 bg-muted/30 rounded-xl">
         {views.map(v => (
           <button
             key={v.id}
             onClick={() => setCurrentView(v.id)}
-            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider ${
-              currentView === v.id ? 'text-foreground border-b-2 border-foreground' : 'text-muted-foreground'
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+              currentView === v.id 
+                ? 'bg-background text-foreground shadow-sm' 
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {v.label}
@@ -69,8 +73,8 @@ const Index = () => {
         ))}
       </nav>
 
-      <main className="flex-1 overflow-hidden p-4">
-        {/* VIEW DIÁRIA */}
+      {/* MAIN: Espaçamento melhorado */}
+      <main className="flex-1 overflow-hidden p-4 sm:p-6">
         {currentView === 'daily' && (
           <DailyView
             currentDate={currentDate}
@@ -80,24 +84,24 @@ const Index = () => {
             deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
+            projects={data.projects} // Passando projetos
           />
         )}
 
-        {/* VIEW SEMANAL (Adicionada agora!) */}
         {currentView === 'weekly' && (
           <WeeklyView
             currentDate={currentDate}
             toISODate={toISODate}
-            startOfWeek={startOfWeek} // A peça chave que faltava
+            startOfWeek={startOfWeek}
             getTasksForDate={getTasksForDate}
             addTask={addTask}
             deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
+            projects={data.projects} // Passando projetos
           />
         )}
 
-        {/* VIEW MENSAL (Adicionada agora!) */}
         {currentView === 'monthly' && (
           <MonthlyView
             currentDate={currentDate}
@@ -107,15 +111,15 @@ const Index = () => {
             deleteTask={deleteTask}
             updateTaskStatus={updateTaskStatus}
             onMigrate={handleMigrate}
+            projects={data.projects} // Passando projetos
           />
         )}
 
-        {/* VIEW PROJETOS */}
         {currentView === 'projects' && (
           <ProjectsView
             projects={data.projects}
             addProject={addProject}
-            deleteProject={() => {}} 
+            deleteProject={deleteProject} // Passando a função de deletar
           />
         )}
       </main>
