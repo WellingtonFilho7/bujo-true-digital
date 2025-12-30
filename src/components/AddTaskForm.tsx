@@ -36,9 +36,8 @@ export function AddTaskForm({ dateStr, onAdd, projects = [] }: AddTaskFormProps)
   const types: TaskType[] = ['task', 'event', 'note'];
 
   return (
-    // Fundo branco, borda superior fina. Reto.
-    <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 pb-safe z-40">
-      <form onSubmit={handleSubmit} className="max-w-xl mx-auto p-3 flex flex-col gap-2">
+  <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 pb-[calc(env(safe-area-inset-bottom)+1rem)] z-40 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+    <form onSubmit={handleSubmit} className="max-w-xl mx-auto p-3 flex flex-col gap-2">
         
         {/* LINHA SUPERIOR: TIPO + TEXTO */}
         <div className="flex items-center gap-2">
