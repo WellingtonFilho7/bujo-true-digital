@@ -15,7 +15,7 @@ const Index = () => {
     data,
     currentDate,
     toISODate,
-    startOfWeek,
+    startOfWeek, // Essencial para a WeeklyView
     addTask,
     updateTaskStatus,
     deleteTask,
@@ -37,11 +37,10 @@ const Index = () => {
   };
 
   const handleMigrationSelect = async (target: 'tomorrow' | 'week' | 'month') => {
-  if (!migrationTask) return;
-
-  await migrateTask(migrationTask.dateStr, migrationTask.taskId, target);
-  setMigrationTask(null);
-};
+    if (!migrationTask) return;
+    await migrateTask(migrationTask.dateStr, migrationTask.taskId, target);
+    setMigrationTask(null);
+  };
 
   return (
     <div className="h-screen flex flex-col max-w-2xl mx-auto pt-safe pb-safe bg-background">
@@ -71,6 +70,7 @@ const Index = () => {
       </nav>
 
       <main className="flex-1 overflow-hidden p-4">
+        {/* VIEW DIÁRIA */}
         {currentView === 'daily' && (
           <DailyView
             currentDate={currentDate}
@@ -82,6 +82,35 @@ const Index = () => {
             onMigrate={handleMigrate}
           />
         )}
+
+        {/* VIEW SEMANAL (Adicionada agora!) */}
+        {currentView === 'weekly' && (
+          <WeeklyView
+            currentDate={currentDate}
+            toISODate={toISODate}
+            startOfWeek={startOfWeek} // A peça chave que faltava
+            getTasksForDate={getTasksForDate}
+            addTask={addTask}
+            deleteTask={deleteTask}
+            updateTaskStatus={updateTaskStatus}
+            onMigrate={handleMigrate}
+          />
+        )}
+
+        {/* VIEW MENSAL (Adicionada agora!) */}
+        {currentView === 'monthly' && (
+          <MonthlyView
+            currentDate={currentDate}
+            toISODate={toISODate}
+            getTasksForDate={getTasksForDate}
+            addTask={addTask}
+            deleteTask={deleteTask}
+            updateTaskStatus={updateTaskStatus}
+            onMigrate={handleMigrate}
+          />
+        )}
+
+        {/* VIEW PROJETOS */}
         {currentView === 'projects' && (
           <ProjectsView
             projects={data.projects}
@@ -89,7 +118,6 @@ const Index = () => {
             deleteProject={() => {}} 
           />
         )}
-        {/* Outras views podem ser adicionadas conforme necessário */}
       </main>
 
       <MigrationModal
