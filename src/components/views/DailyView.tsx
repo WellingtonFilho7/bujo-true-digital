@@ -94,6 +94,7 @@ export function DailyView({
                 onCancel={(d, id) => updateTaskStatus(d, id, 'canceled')}
                 onMigrate={onMigrate}
                 onDelete={deleteTask}
+                projects={projects}
               />
             ))}
           </div>
