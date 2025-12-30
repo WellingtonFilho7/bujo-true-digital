@@ -1,67 +1,87 @@
-import { Task, TYPE_SYMBOLS, STATUS_SYMBOLS } from '@/types/bujo';
-import { cn } from '@/lib/utils';
-import { Trash2 } from 'lucide-react';
+import { Task, TaskType, TYPE_SYMBOLS, Project } from '@/types/bujo';
+import { X, Check, ArrowRight, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface TaskItemProps {
   task: Task;
-  dateStr: string; // A data onde essa tarefa está salva
+  dateStr: string;
   onToggleDone: (dateStr: string, taskId: string) => void;
   onCancel: (dateStr: string, taskId: string) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
   onDelete: (dateStr: string, taskId: string) => void;
-  compact?: boolean;
-  showDate?: boolean; // NOVA PROP: Se true, mostra a data ao lado da tarefa
+  showDate?: boolean;
+  projects?: Project[]; // Novo prop: lista de projetos para buscar o nome
 }
 
-export function TaskItem({ 
-  task, dateStr, onToggleDone, onCancel, onMigrate, onDelete, compact = false, showDate = false
+export function TaskItem({
+  task,
+  dateStr,
+  onToggleDone,
+  onCancel,
+  onMigrate,
+  onDelete,
+  showDate = false,
+  projects = []
 }: TaskItemProps) {
-  const symbol = task.status === 'open' ? TYPE_SYMBOLS[task.type] : STATUS_SYMBOLS[task.status];
-  const isCompleted = ['done', 'canceled', 'migrated'].includes(task.status);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Formata a data para exibir (ex: 28/12)
-  const dateDisplay = showDate 
-    ? new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-    : null;
+  // Busca o nome do projeto pelo ID
+  const project = task.projectId ? projects.find(p => p.id === task.projectId) : null;
+
+  const getStatusStyles = () => {
+    if (task.status === 'done') return 'text-muted-foreground line-through decoration-1 opacity-60';
+    if (task.status === 'canceled') return 'text-muted-foreground line-through decoration-red-400 decoration-2 opacity-60';
+    if (task.status === 'migrated') return 'text-muted-foreground opacity-50';
+    return 'text-foreground';
+  };
 
   return (
-    <div className={cn("group flex items-start gap-2 py-1.5 task-enter", compact && "py-1")}>
+    <div className="group relative flex items-start gap-3 py-2 px-3 hover:bg-accent/20 rounded-lg transition-colors">
+      
+      {/* Símbolo Clicável (Bullet) */}
       <button
         onClick={() => onToggleDone(dateStr, task.id)}
-        disabled={task.status === 'canceled' || task.status === 'migrated'}
-        className={cn(
-          "w-5 h-5 flex items-center justify-center text-sm font-bold transition-colors shrink-0",
-          isCompleted ? "text-muted-foreground" : "text-foreground hover:text-primary"
-        )}
+        className="mt-0.5 shrink-0 w-6 h-6 flex items-center justify-center text-sm font-bold text-muted-foreground hover:text-primary transition-colors"
       >
-        {symbol}
+        {task.status === 'migrated' ? '>' : TYPE_SYMBOLS[task.type as TaskType]}
       </button>
 
-      <div className={cn("flex-1 text-sm leading-snug break-words", isCompleted && "line-through text-muted-foreground")}>
-        {task.content}
-        {/* Exibe a data se solicitado (para Weekly e Monthly views) */}
-        {showDate && (
-          <span className="ml-2 text-[10px] font-mono text-muted-foreground bg-accent/50 px-1 rounded">
-            {dateDisplay}
-          </span>
-        )}
+      {/* Conteúdo */}
+      <div 
+        className="flex-1 min-w-0 cursor-pointer" 
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+      >
+        <div className={`text-sm leading-snug break-words ${getStatusStyles()}`}>
+          {task.content}
+        </div>
+        
+        {/* Metadados (Data e Projeto) */}
+        <div className="flex gap-2 mt-1">
+          {showDate && (
+            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground font-medium">
+              {new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+            </span>
+          )}
+          
+          {/* ETIQUETA DO PROJETO - CORREÇÃO VISUAL */}
+          {project && (
+            <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">
+              {project.name}
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-        {task.status === 'open' && (
-          <>
-            <button onClick={() => onMigrate(dateStr, task.id)} className="w-5 h-5 flex items-center justify-center hover:bg-foreground hover:text-background rounded transition-colors" title="Migrar">
-              ↦
-            </button>
-            <button onClick={() => onCancel(dateStr, task.id)} className="w-5 h-5 flex items-center justify-center hover:bg-yellow-500 hover:text-white rounded transition-colors" title="Cancelar">
-              ✖
-            </button>
-          </>
-        )}
-        <button onClick={() => onDelete(dateStr, task.id)} className="w-5 h-5 flex items-center justify-center hover:bg-red-600 hover:text-white rounded transition-colors" title="Excluir Permanentemente">
-          <Trash2 className="w-3 h-3" />
-        </button>
-      </div>
+      {/* Menu de Ações (Aparece ao clicar no texto) */}
+      {isMenuOpen && (
+        <div className="absolute right-2 top-8 z-10 flex items-center gap-1 p-1 bg-popover border border-border rounded-lg shadow-lg animate-in fade-in zoom-in-95">
+          <button onClick={() => onToggleDone(dateStr, task.id)} className="p-2 hover:bg-accent rounded text-green-600"><Check className="w-4 h-4" /></button>
+          <button onClick={() => onMigrate(dateStr, task.id)} className="p-2 hover:bg-accent rounded text-blue-600"><ArrowRight className="w-4 h-4" /></button>
+          <button onClick={() => onCancel(dateStr, task.id)} className="p-2 hover:bg-accent rounded text-orange-600"><X className="w-4 h-4" /></button>
+          <div className="w-px h-4 bg-border mx-1" />
+          <button onClick={() => onDelete(dateStr, task.id)} className="p-2 hover:bg-red-100 rounded text-red-600"><Trash2 className="w-4 h-4" /></button>
+        </div>
+      )}
     </div>
   );
 }
