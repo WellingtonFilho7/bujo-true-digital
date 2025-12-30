@@ -21,6 +21,7 @@ const Index = () => {
     deleteTask,
     addProject,
     getTasksForDate,
+    migrateTask,
     errorMsg
   } = useBujo();
 
@@ -35,11 +36,12 @@ const Index = () => {
     setMigrationTask({ dateStr, taskId });
   };
 
-  const handleMigrationSelect = (target: 'tomorrow' | 'week' | 'month') => {
-    if (!migrationTask) return;
-    // Lógica de migração será implementada após o banco estar 100%
-    setMigrationTask(null);
-  };
+  const handleMigrationSelect = async (target: 'tomorrow' | 'week' | 'month') => {
+  if (!migrationTask) return;
+
+  await migrateTask(migrationTask.dateStr, migrationTask.taskId, target);
+  setMigrationTask(null);
+};
 
   return (
     <div className="h-screen flex flex-col max-w-2xl mx-auto pt-safe pb-safe bg-background">
