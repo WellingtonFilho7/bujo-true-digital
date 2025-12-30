@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Task, TaskType } from "@/types/bujo";
+import { Task, TaskType, Project } from "@/types/bujo"; // Adicionei Project
 import { TaskItem } from "@/components/TaskItem";
 import { AddTaskForm } from "@/components/AddTaskForm";
 
@@ -11,7 +11,11 @@ interface WeeklyViewProps {
   toISODate: (date: Date) => string;
   startOfWeek: (date: Date) => Date;
   getTasksForDate: (dateStr: string) => Task[];
-  addTask: (dateStr: string, content: string, type: TaskType, targetDate?: string) => void;
+  projects: Project[]; // Nova prop
+  
+  // Assinatura atualizada
+  addTask: (dateStr: string, content: string, type: TaskType, targetDate?: string, projectId?: string) => void;
+  
   updateTaskStatus: (dateStr: string, taskId: string, status: Task["status"]) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
   deleteTask: (dateStr: string, taskId: string) => void;
@@ -22,6 +26,7 @@ export function WeeklyView({
   toISODate,
   startOfWeek,
   getTasksForDate,
+  projects, // Recebendo
   addTask,
   updateTaskStatus,
   onMigrate,
@@ -35,12 +40,13 @@ export function WeeklyView({
     for (let i = 0; i < 7; i++) {
       const d = new Date(weekStartDate);
       d.setDate(d.getDate() + i);
+      // Mantendo a correção do "bug da meia-noite"
+      d.setHours(12, 0, 0, 0); 
       days.push({ date: d, dateStr: toISODate(d) });
     }
     return days;
   }, [weekStartDate, toISODate]);
 
-  // Puxa tarefas de cada dia da semana (de verdade, por YYYY-MM-DD)
   const allWeekTasks: TaskWithOriginalDate[] = useMemo(() => {
     const out: TaskWithOriginalDate[] = [];
     for (const day of weekDays) {
@@ -52,15 +58,16 @@ export function WeeklyView({
     return out;
   }, [weekDays, getTasksForDate]);
 
+  // Atualizado para receber projectId
   const handleSmartAdd = (
     listBaseDateStr: string,
     content: string,
     type: TaskType,
-    specificDate?: string
+    specificDate?: string,
+    projectId?: string
   ) => {
-    // Se o form mandar uma data específica, salva nela. Se não, salva na segunda (master list semanal).
     const finalDate = specificDate || listBaseDateStr;
-    addTask(finalDate, content, type);
+    addTask(finalDate, content, type, undefined, projectId);
   };
 
   const handleToggleDone = (dateStr: string, taskId: string) => {
@@ -81,7 +88,9 @@ export function WeeklyView({
     month: "2-digit",
   });
 
-  const weekBaseDateStr = toISODate(weekStartDate);
+  const weekBaseDate = new Date(weekStartDate);
+  weekBaseDate.setHours(12, 0, 0, 0);
+  const weekBaseDateStr = toISODate(weekBaseDate);
 
   return (
     <div className="h-full flex flex-col">
@@ -124,12 +133,12 @@ export function WeeklyView({
               <TaskItem
                 key={`${task.originalDate}-${task.id}`}
                 task={task}
-                dateStr={task.originalDate} // <- data real da task (YYYY-MM-DD)
+                dateStr={task.originalDate}
                 onToggleDone={handleToggleDone}
                 onCancel={(d, id) => updateTaskStatus(d, id, "canceled")}
                 onMigrate={onMigrate}
                 onDelete={deleteTask}
-                showDate={true} // <- exibe 28/12 no card
+                showDate={true}
               />
             ))}
           </div>
@@ -137,7 +146,8 @@ export function WeeklyView({
       </div>
 
       <div className="pt-4 border-t border-border mt-4">
-        <AddTaskForm dateStr={weekBaseDateStr} onAdd={handleSmartAdd} />
+        {/* Passando projects */}
+        <AddTaskForm dateStr={weekBaseDateStr} onAdd={handleSmartAdd} projects={projects} />
       </div>
     </div>
   );
