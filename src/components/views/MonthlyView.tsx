@@ -124,6 +124,7 @@ export function MonthlyView({
                 onMigrate={onMigrate}
                 onDelete={deleteTask}
                 showDate={true}
+                projects={projects}
               />
             ))}
           </div>
