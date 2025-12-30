@@ -43,41 +43,49 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col max-w-xl mx-auto text-[#1a1c1e]">
+    <div className="h-screen flex flex-col max-w-xl mx-auto bg-white text-[#1a1a1a]">
       
-      {/* HEADER LIMPO */}
-      <header className="pt-12 pb-2 px-6 flex items-end justify-between sticky top-0 bg-white/90 backdrop-blur-sm z-50">
-        <h1 className="text-xl font-black tracking-tight text-[#1a1c1e]">
-          BuJo<span className="text-[#d65a38]">.</span>
-        </h1>
-        {/* Ponto indicador de conexão */}
-        <div className={`w-2 h-2 rounded-full ${!data ? 'bg-red-400' : 'bg-[#6f8b82]'}`} />
+      {/* HEADER: A MARCA DO APP (Bold e com Ponto Terracota) */}
+      <header className="pt-12 pb-2 px-5 flex items-end justify-between sticky top-0 bg-white/95 backdrop-blur-sm z-50">
+        <div>
+           <h1 className="text-3xl font-black tracking-tighter text-[#1a1a1a] leading-none">
+             BuJo<span className="text-[#d65a38]">.</span>
+           </h1>
+           {/* Data de hoje bem discreta embaixo do logo */}
+           <p className="text-xs font-medium text-gray-400 mt-1 uppercase tracking-widest">
+             {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric' })}
+           </p>
+        </div>
+
+        {/* Status minimalista */}
+        <div className={`mb-2 w-1.5 h-1.5 rounded-full ${!data ? 'bg-[#d65a38]' : 'bg-[#6f8b82]'}`} />
       </header>
 
-      {/* NAV TERROSA */}
-      <nav className="flex px-6 border-b border-gray-100 overflow-x-auto hide-scrollbar">
+      {/* NAV: Simples e Elegante */}
+      <nav className="flex px-5 border-b border-gray-100 overflow-x-auto hide-scrollbar gap-8 mt-4">
         {views.map(v => (
           <button
             key={v.id}
             onClick={() => setCurrentView(v.id)}
-            className={`mr-8 py-4 text-sm font-bold tracking-wide transition-all relative shrink-0 ${
+            className={`pb-3 text-sm transition-all relative shrink-0 ${
               currentView === v.id 
-                ? 'text-[#d65a38]' // Terracota no ativo
-                : 'text-gray-400 hover:text-[#1a1c1e]'
+                ? 'font-bold text-[#d65a38]' // Ativo: Terracota
+                : 'font-medium text-gray-400 hover:text-[#1a1a1a]'
             }`}
           >
             {v.label}
-            {/* Linha ativa Terracota */}
+            {/* Linha indicadora apenas no ativo */}
             {currentView === v.id && (
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-[#d65a38] rounded-t-full" />
+              <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#d65a38]" />
             )}
           </button>
         ))}
       </nav>
 
-      {/* MAIN */}
-      <main className="flex-1 overflow-hidden relative bg-white">
-        <div className="h-full overflow-y-auto hide-scrollbar px-5 pt-6 pb-40">
+      {/* MAIN CONTENT */}
+      <main className="flex-1 overflow-hidden relative">
+        <div className="h-full overflow-y-auto hide-scrollbar px-4 pt-6 pb-40">
+          
           {currentView === 'daily' && (
             <DailyView
               currentDate={currentDate}
