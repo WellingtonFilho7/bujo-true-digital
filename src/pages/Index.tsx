@@ -55,3 +55,5 @@ const [showLegend, setShowLegend] = useState(false);
     </div>
   </div>
 )}
+
+export default Index;
