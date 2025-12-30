@@ -11,62 +11,62 @@ export function MigrationModal({ open, onClose, onSelect }: MigrationModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 animate-in fade-in duration-200">
-      {/* Fundo escuro desfocado */}
+      {/* Overlay escuro */}
       <div 
-        className="fixed inset-0 bg-[#1a1c1e]/20 backdrop-blur-sm transition-opacity" 
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       />
 
-      {/* O Card do Modal */}
-      <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 border border-gray-100 scale-100 animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
+      {/* Conteúdo do Modal */}
+      <div className="relative w-full max-w-sm bg-white rounded-lg shadow-xl p-4 border border-gray-200 animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-300">
         
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-[#1a1c1e]">Para quando?</h3>
-          <button onClick={onClose} className="p-2 bg-gray-50 rounded-full text-gray-400 hover:text-[#d65a38]">
+        <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
+          <h3 className="text-base font-bold text-[#1a1a1a]">Mover tarefa</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-[#d65a38]">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
           {/* Opção: Amanhã */}
           <button
             onClick={() => onSelect('tomorrow')}
-            className="flex items-center gap-4 p-4 rounded-2xl bg-[#f2a735]/10 text-[#f2a735] hover:bg-[#f2a735] hover:text-white transition-all group"
+            className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-50 transition-colors group text-left"
           >
-            <div className="p-2 bg-white rounded-xl shadow-sm group-hover:bg-white/20">
-              <ArrowRight className="w-6 h-6" />
+            <div className="p-1.5 bg-[#f2a735]/10 rounded-sm text-[#f2a735] group-hover:bg-[#f2a735] group-hover:text-white transition-colors">
+              <ArrowRight className="w-5 h-5" />
             </div>
-            <div className="text-left">
-              <span className="block font-bold text-lg">Amanhã</span>
-              <span className="text-xs opacity-70 font-medium uppercase tracking-wider">Adiar 24h</span>
+            <div>
+              <span className="block text-sm font-semibold text-[#1a1a1a]">Amanhã</span>
+              <span className="text-xs text-gray-500">Adiar para o próximo dia</span>
             </div>
           </button>
 
           {/* Opção: Próxima Semana */}
           <button
             onClick={() => onSelect('week')}
-            className="flex items-center gap-4 p-4 rounded-2xl bg-[#6f8b82]/10 text-[#6f8b82] hover:bg-[#6f8b82] hover:text-white transition-all group"
+            className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-50 transition-colors group text-left"
           >
-            <div className="p-2 bg-white rounded-xl shadow-sm group-hover:bg-white/20">
-              <Calendar className="w-6 h-6" />
+            <div className="p-1.5 bg-gray-100 rounded-sm text-gray-500 group-hover:bg-[#f2a735] group-hover:text-white transition-colors">
+              <Calendar className="w-5 h-5" />
             </div>
-            <div className="text-left">
-              <span className="block font-bold text-lg">Próxima Semana</span>
-              <span className="text-xs opacity-70 font-medium uppercase tracking-wider">Jogar pra segunda</span>
+            <div>
+              <span className="block text-sm font-semibold text-[#1a1a1a]">Próxima Semana</span>
+              <span className="text-xs text-gray-500">Agendar para segunda-feira</span>
             </div>
           </button>
 
           {/* Opção: Próximo Mês */}
           <button
             onClick={() => onSelect('month')}
-            className="flex items-center gap-4 p-4 rounded-2xl bg-gray-100 text-gray-500 hover:bg-[#d65a38] hover:text-white transition-all group"
+            className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-50 transition-colors group text-left"
           >
-            <div className="p-2 bg-white rounded-xl shadow-sm group-hover:bg-white/20">
-              <SkipForward className="w-6 h-6" />
+            <div className="p-1.5 bg-gray-100 rounded-sm text-gray-500 group-hover:bg-[#f2a735] group-hover:text-white transition-colors">
+              <SkipForward className="w-5 h-5" />
             </div>
-            <div className="text-left">
-              <span className="block font-bold text-lg">Próximo Mês</span>
-              <span className="text-xs opacity-70 font-medium uppercase tracking-wider">Limpar a mesa</span>
+            <div>
+              <span className="block text-sm font-semibold text-[#1a1a1a]">Próximo Mês</span>
+              <span className="text-xs text-gray-500">Mover para dia 1º</span>
             </div>
           </button>
         </div>
