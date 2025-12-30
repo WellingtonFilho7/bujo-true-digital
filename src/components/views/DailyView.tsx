@@ -8,7 +8,10 @@ interface DailyViewProps {
   currentDate: Date;
   toISODate: (date: Date) => string;
   getTasksForDate: (dateStr: string) => Task[];
+
+  // Aceita targetDate (data opcional do calendário)
   addTask: (dateStr: string, content: string, type: TaskType, targetDate?: string) => void;
+
   updateTaskStatus: (dateStr: string, taskId: string, status: Task['status']) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
   deleteTask: (dateStr: string, taskId: string) => void;
@@ -27,21 +30,16 @@ export function DailyView({
   const dateStr = toISODate(viewDate);
   const tasks = getTasksForDate(dateStr);
 
-  // ✅ Alinhado com Weekly/Monthly e com o AddTaskForm
-  const handleSmartAdd = (
-    dateStr: string,
-    content: string,
-    type: TaskType,
-    targetDate?: string
-  ) => {
-    addTask(dateStr, content, type, targetDate);
+  // ✅ Compatível com AddTaskForm: (dateStr, content, type, targetDate?)
+  const handleSmartAdd = (baseDateStr: string, content: string, type: TaskType, targetDate?: string) => {
+    addTask(baseDateStr, content, type, targetDate);
   };
 
   const handleToggleDone = (dStr: string, taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      updateTaskStatus(dStr, taskId, task.status === 'done' ? 'open' : 'done');
-    }
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    updateTaskStatus(dStr, taskId, task.status === 'done' ? 'open' : 'done');
   };
 
   return (
@@ -59,11 +57,7 @@ export function DailyView({
         </button>
 
         <h2 className="text-lg font-bold uppercase tracking-tight capitalize text-center leading-tight">
-          {viewDate.toLocaleDateString('pt-BR', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-          })}
+          {viewDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </h2>
 
         <button
@@ -80,12 +74,10 @@ export function DailyView({
 
       <div className="flex-1 overflow-y-auto hide-scrollbar">
         {tasks.length === 0 ? (
-          <p className="text-muted-foreground text-sm italic text-center mt-10">
-            Nada anotado.
-          </p>
+          <p className="text-muted-foreground text-sm italic text-center mt-10">Nada anotado.</p>
         ) : (
           <div className="space-y-0.5">
-            {tasks.map(task => (
+            {tasks.map((task) => (
               <TaskItem
                 key={task.id}
                 task={task}
