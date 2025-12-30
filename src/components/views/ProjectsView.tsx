@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Project, Task } from '@/types/bujo';
 import { TaskItem } from '@/components/TaskItem';
-import { Plus, Trash2, Folder, FolderOpen, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Folder, ArrowLeft, FolderOpen } from 'lucide-react';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -51,23 +51,25 @@ export function ProjectsView({
     if (!project) return <div onClick={() => setSelectedProjectId(null)}>Voltar</div>;
 
     return (
-        <div className="h-full flex flex-col">
-            {/* Cabeçalho da Pasta */}
-            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-                <button onClick={() => setSelectedProjectId(null)} className="p-2 -ml-2 hover:bg-gray-100 rounded-full text-gray-500">
-                    <ArrowLeft className="w-6 h-6" />
+        <div className="h-full flex flex-col bg-white">
+            {/* Cabeçalho Minimalista */}
+            <div className="flex items-center gap-3 mb-2 pb-4 border-b border-gray-100">
+                <button 
+                    onClick={() => setSelectedProjectId(null)} 
+                    className="p-2 -ml-2 hover:bg-gray-100 rounded-sm text-gray-500 transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div>
-                    <span className="text-xs font-bold uppercase tracking-widest text-[#6f8b82]">Projeto</span>
-                    <h2 className="text-2xl font-bold text-[#1a1c1e] leading-none">{project.name}</h2>
+                <div className="flex items-center gap-2">
+                    <Folder className="w-5 h-5 text-[#6f8b82]" /> {/* Sálvia */}
+                    <h2 className="text-xl font-semibold text-[#1a1a1a]">{project.name}</h2>
                 </div>
             </div>
             
             <div className="flex-1 overflow-y-auto pb-20">
                 {projectTasks.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center mt-10 text-gray-300">
-                        <FolderOpen className="w-12 h-12 mb-2 opacity-50" />
-                        <p className="text-sm font-medium">Pasta vazia</p>
+                    <div className="mt-10 text-center">
+                        <p className="text-sm text-gray-400">Nenhuma tarefa nesta pasta.</p>
                     </div>
                 ) : (
                     <div className="space-y-1">
@@ -93,64 +95,68 @@ export function ProjectsView({
 
   // --- MODO LISTA (VER TODAS AS PASTAS) ---
   return (
-    <div className="h-full flex flex-col">
-      <div className="space-y-1 px-1 mb-4">
-        <h2 className="text-2xl font-bold tracking-tight text-[#1a1c1e]">Projetos</h2>
-        <p className="text-gray-400 text-sm font-medium">Organize suas áreas de foco.</p>
+    <div className="h-full flex flex-col bg-white">
+      <div className="mb-6 px-1">
+        <h2 className="text-xl font-bold text-[#1a1a1a]">Projetos</h2>
+        <p className="text-gray-400 text-xs">Áreas de foco</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 pb-32 px-1">
+      <div className="flex-1 overflow-y-auto pb-32">
         {projects.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-gray-100 rounded-2xl bg-gray-50/50">
-            <FolderOpen className="w-8 h-8 text-gray-300 mb-2" />
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Nenhum projeto</p>
+          <div className="flex flex-col items-center justify-center h-40 border border-dashed border-gray-200 rounded-md bg-gray-50/50 mx-1">
+            <FolderOpen className="w-6 h-6 text-gray-300 mb-2" />
+            <p className="text-gray-400 text-xs">Nenhum projeto criado</p>
           </div>
         ) : (
-          projects.map((project) => (
-            <div 
-              key={project.id} 
-              onClick={() => setSelectedProjectId(project.id)}
-              className="group flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-[#6f8b82]/30 active:scale-[0.98] transition-all cursor-pointer"
-            >
-              <div className="flex items-center gap-4 overflow-hidden">
-                <div className="shrink-0 p-3 bg-[#6f8b82]/10 rounded-xl text-[#6f8b82]">
-                    <Folder className="w-6 h-6" />
-                </div>
-                <span className="font-bold text-lg text-[#1a1c1e] truncate">{project.name}</span>
-              </div>
-              
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (confirm('Apagar este projeto e suas tarefas?')) {
-                    deleteProject(project.id);
-                  }
-                }}
-                className="shrink-0 w-10 h-10 flex items-center justify-center text-gray-300 hover:text-[#d65a38] hover:bg-[#d65a38]/10 rounded-xl transition-colors"
+          <div className="flex flex-col">
+            {projects.map((project) => (
+              <div 
+                key={project.id} 
+                onClick={() => setSelectedProjectId(project.id)}
+                className="group flex items-center justify-between py-3 px-2 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
               >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </div>
-          ))
+                <div className="flex items-center gap-3">
+                    {/* Ícone Sálvia */}
+                    <Folder className="w-5 h-5 text-[#6f8b82]" />
+                    <span className="text-base text-[#1a1a1a] font-medium">{project.name}</span>
+                </div>
+                
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm('Apagar este projeto e suas tarefas?')) {
+                      deleteProject(project.id);
+                    }
+                  }}
+                  className="p-2 text-gray-300 hover:text-[#d65a38] hover:bg-[#d65a38]/10 rounded-sm transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* INPUT ESTILO NOVO */}
-      <div className="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-100 pb-safe z-40">
-        <form onSubmit={handleSubmit} className="max-w-xl mx-auto p-4 flex gap-3">
+      {/* INPUT FIXO (Estilo Notion/Reto) */}
+      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 pb-safe z-40">
+        <form onSubmit={handleSubmit} className="max-w-xl mx-auto p-3 flex gap-2">
+            <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-sm">
+                <Folder className="w-4 h-4 text-gray-400" />
+            </div>
             <input
-            type="text"
-            value={newProject}
-            onChange={(e) => setNewProject(e.target.value)}
-            placeholder="Novo projeto..."
-            className="flex-1 bg-[#f8f9fa] text-[#1a1c1e] placeholder:text-gray-300 rounded-2xl px-5 py-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-[#6f8b82]/20 transition-all"
+                type="text"
+                value={newProject}
+                onChange={(e) => setNewProject(e.target.value)}
+                placeholder="Nome do novo projeto..."
+                className="flex-1 bg-transparent text-[#1a1a1a] placeholder:text-gray-400 text-base focus:outline-none"
             />
             <button
-            type="submit"
-            disabled={!newProject.trim()}
-            className="w-16 bg-[#1a1c1e] text-white rounded-2xl font-bold flex items-center justify-center shadow-lg disabled:opacity-50 active:scale-95 transition-transform"
+                type="submit"
+                disabled={!newProject.trim()}
+                className="h-8 px-4 bg-[#1a1a1a] text-white text-sm font-bold rounded-sm disabled:opacity-50 hover:bg-black transition-colors"
             >
-            <Plus className="w-7 h-7" />
+                Criar
             </button>
         </form>
       </div>
