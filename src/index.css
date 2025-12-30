@@ -1,156 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* Importando a INTER com vários pesos (Light ao Black) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* BuJo Paper & Ink Design System */
-
-@layer base {
-  :root {
-    --background: 40 20% 96%;
-    --foreground: 0 0% 8%;
-
-    --card: 40 25% 98%;
-    --card-foreground: 0 0% 8%;
-
-    --popover: 40 25% 98%;
-    --popover-foreground: 0 0% 8%;
-
-    --primary: 0 0% 8%;
-    --primary-foreground: 40 20% 96%;
-
-    --secondary: 40 15% 92%;
-    --secondary-foreground: 0 0% 8%;
-
-    --muted: 40 10% 88%;
-    --muted-foreground: 0 0% 40%;
-
-    --accent: 40 15% 90%;
-    --accent-foreground: 0 0% 8%;
-
-    --destructive: 0 60% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 40 10% 85%;
-    --input: 40 10% 85%;
-    --ring: 0 0% 8%;
-
-    --radius: 0.25rem;
-
-    --sidebar-background: 40 25% 98%;
-    --sidebar-foreground: 0 0% 8%;
-    --sidebar-primary: 0 0% 8%;
-    --sidebar-primary-foreground: 40 20% 96%;
-    --sidebar-accent: 40 15% 92%;
-    --sidebar-accent-foreground: 0 0% 8%;
-    --sidebar-border: 40 10% 85%;
-    --sidebar-ring: 0 0% 8%;
-
-    --chart-1: 0 0% 20%;
-    --chart-2: 0 0% 35%;
-    --chart-3: 0 0% 50%;
-    --chart-4: 0 0% 65%;
-    --chart-5: 0 0% 80%;
-
-    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  }
-
-  .dark {
-    --background: 0 0% 8%;
-    --foreground: 40 20% 92%;
-
-    --card: 0 0% 12%;
-    --card-foreground: 40 20% 92%;
-
-    --popover: 0 0% 12%;
-    --popover-foreground: 40 20% 92%;
-
-    --primary: 40 20% 92%;
-    --primary-foreground: 0 0% 8%;
-
-    --secondary: 0 0% 16%;
-    --secondary-foreground: 40 20% 92%;
-
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 60%;
-
-    --accent: 0 0% 18%;
-    --accent-foreground: 40 20% 92%;
-
-    --destructive: 0 55% 45%;
-    --destructive-foreground: 40 20% 92%;
-
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 40 20% 92%;
-
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 40 20% 92%;
-    --sidebar-primary: 40 20% 92%;
-    --sidebar-primary-foreground: 0 0% 8%;
-    --sidebar-accent: 0 0% 16%;
-    --sidebar-accent-foreground: 40 20% 92%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 40 20% 92%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground font-mono antialiased;
-    font-feature-settings: "liga" 1, "calt" 1;
-  }
-
-  /* Safe area insets for iOS */
-  .pt-safe {
-    padding-top: max(env(safe-area-inset-top), 0.5rem);
-  }
-  .pb-safe {
-    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
-  }
-
-  /* Hide scrollbar but allow scrolling */
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-@layer components {
-  /* Task item animations */
-  .task-enter {
-    animation: taskEnter 0.2s ease-out;
-  }
+:root {
+  /* Fundo Branco Puro */
+  --background: #ffffff;
+  --foreground: #1a1c1e; /* Preto suave (Inter fica linda com cinza muito escuro) */
   
-  @keyframes taskEnter {
-    from {
-      opacity: 0;
-      transform: translateX(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
+  /* SUA PALETA TERROSA */
+  --terra: #d65a38;     /* Ação / Delete */
+  --mustard: #f2a735;   /* Alerta / Data */
+  --sage: #6f8b82;      /* Sucesso / Projetos */
+  
+  --card: #f8f9fa;      
+  --border: #f1f5f9;
+}
 
-  .task-done {
-    animation: taskDone 0.15s ease-out;
-  }
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  /* Aplicando a INTER globalmente */
+  font-family: 'Inter', sans-serif;
+  
+  /* Melhora a renderização da fonte em telas Apple/Mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  @keyframes taskDone {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.98); }
-    100% { transform: scale(1); }
-  }
+/* Utilitários para esconder barra de rolagem */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Animaçãozinha suave para os cards */
+.transition-card {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
