@@ -139,6 +139,7 @@ export function WeeklyView({
                 onMigrate={onMigrate}
                 onDelete={deleteTask}
                 showDate={true}
+                projects={projects}
               />
             ))}
           </div>
