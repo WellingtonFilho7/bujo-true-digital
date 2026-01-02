@@ -1,73 +1,59 @@
-# Welcome to your Lovable project
+# BuJo True Digital
+Bullet Journal em React + Vite com Supabase para persistência e Tailwind/shadcn para UI.
 
-## Project info
-
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+## Rodando localmente
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Variáveis de ambiente (Supabase)
+Crie um `.env.local` na raiz com:
+```
+VITE_SUPABASE_URL=https://<your-project>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon-key>
+```
+Sem essas variáveis o app roda em modo somente leitura e mostra alerta.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Tabelas esperadas
+`projects`
+- id (uuid, pk, default uuid_generate_v4)
+- name (text)
+- created_at (timestamp, default now)
 
-**Use GitHub Codespaces**
+`tasks`
+- id (uuid, pk, default uuid_generate_v4)
+- content (text)
+- type (text) -- 'task' | 'event' | 'note'
+- status (text) -- 'open' | 'done' | 'canceled' | 'migrated'
+- date_str (text) -- ISO YYYY-MM-DD
+- project_id (uuid, fk -> projects.id, null allowed)
+- created_at (timestamp, default now)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### SQL rápido (rodar no SQL Editor do Supabase)
+```sql
+create extension if not exists "uuid-ossp";
 
-## What technologies are used for this project?
+create table if not exists public.projects (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  created_at timestamptz default now()
+);
 
-This project is built with:
+create table if not exists public.tasks (
+  id uuid primary key default uuid_generate_v4(),
+  content text not null,
+  type text not null check (type in ('task','event','note')),
+  status text not null check (status in ('open','done','canceled','migrated')),
+  date_str text not null,
+  project_id uuid references public.projects(id) on delete set null,
+  created_at timestamptz default now()
+);
+```
+Se RLS estiver ativo, crie políticas de leitura/escrita para o role `anon`/`authenticated` conforme seu uso.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Scripts úteis
+- `npm run dev` – modo dev
+- `npm run build` – build de produção
+- `npm run lint` – lint com ESLint
+- `npm test` – testes (Vitest + RTL)

@@ -6,9 +6,10 @@ interface AddTaskFormProps {
   dateStr: string;
   projects?: Project[];
   onAdd: (dateStr: string, content: string, type: TaskType, targetDate?: string, projectId?: string) => void;
+  disabled?: boolean;
 }
 
-export function AddTaskForm({ dateStr, onAdd, projects = [] }: AddTaskFormProps) {
+export function AddTaskForm({ dateStr, onAdd, projects = [], disabled = false }: AddTaskFormProps) {
   const [content, setContent] = useState('');
   const [type, setType] = useState<TaskType>('task');
   const [selectedProject, setSelectedProject] = useState<string>('');
@@ -17,7 +18,7 @@ export function AddTaskForm({ dateStr, onAdd, projects = [] }: AddTaskFormProps)
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!content.trim()) return;
+    if (disabled || !content.trim()) return;
 
     onAdd(dateStr, content.trim(), type, optionalDate || undefined, selectedProject || undefined);
     
@@ -47,10 +48,11 @@ export function AddTaskForm({ dateStr, onAdd, projects = [] }: AddTaskFormProps)
                 <button
                 key={t}
                 type="button"
-                onClick={() => setType(t)}
+                onClick={() => !disabled && setType(t)}
+                disabled={disabled}
                 className={`w-7 h-7 flex items-center justify-center text-sm font-bold rounded-sm transition-colors ${
                     type === t ? 'bg-white shadow-sm text-[#1a1a1a]' : 'text-gray-400 hover:text-gray-600'
-                }`}
+                } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                 {TYPE_SYMBOLS[t]}
                 </button>
@@ -64,8 +66,9 @@ export function AddTaskForm({ dateStr, onAdd, projects = [] }: AddTaskFormProps)
              onFocus={() => setShowExtras(true)}
              onKeyDown={handleKeyDown}
              placeholder="Nova entrada..."
-             className="flex-1 bg-transparent border-none text-base text-[#1a1a1a] placeholder:text-gray-400 focus:outline-none p-2"
+             className="flex-1 bg-transparent border-none text-base text-[#1a1a1a] placeholder:text-gray-400 focus:outline-none p-2 disabled:opacity-60"
              autoComplete="off"
+             disabled={disabled}
            />
         </div>
 
@@ -83,7 +86,9 @@ export function AddTaskForm({ dateStr, onAdd, projects = [] }: AddTaskFormProps)
                                 onChange={(e) => setSelectedProject(e.target.value)}
                                 className={`appearance-none h-8 pl-8 pr-3 text-xs font-medium border rounded-sm focus:outline-none cursor-pointer
                                     ${selectedProject ? 'bg-[#6f8b82]/10 border-[#6f8b82] text-[#6f8b82]' : 'bg-white border-gray-200 text-gray-500'}
+                                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
                                 `}
+                                disabled={disabled}
                             >
                                 <option value="">Sem Projeto</option>
                                 {projects.map(p => (
@@ -102,7 +107,9 @@ export function AddTaskForm({ dateStr, onAdd, projects = [] }: AddTaskFormProps)
                             onChange={(e) => setOptionalDate(e.target.value)}
                             className={`h-8 pl-8 pr-2 text-xs font-medium border rounded-sm focus:outline-none cursor-pointer
                                 ${optionalDate ? 'bg-[#f2a735]/10 border-[#f2a735] text-[#f2a735]' : 'bg-white border-gray-200 text-transparent w-8'}
+                                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
                             `}
+                            disabled={disabled}
                          />
                          {!optionalDate && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-400">
@@ -122,7 +129,7 @@ export function AddTaskForm({ dateStr, onAdd, projects = [] }: AddTaskFormProps)
                     {/* Botão ADD (Terracota, Quadrado) */}
                     <button
                         type="submit"
-                        disabled={!content.trim()}
+                        disabled={!content.trim() || disabled}
                         className="h-8 px-4 bg-[#d65a38] text-white text-sm font-bold rounded-sm shadow-sm disabled:opacity-50 hover:bg-[#c54e2e] transition-colors"
                     >
                         Adicionar

@@ -16,6 +16,7 @@ interface DailyViewProps {
   updateTaskStatus: (dateStr: string, taskId: string, status: Task['status']) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
   deleteTask: (dateStr: string, taskId: string) => void;
+  readOnly?: boolean;
 }
 
 export function DailyView({
@@ -27,6 +28,7 @@ export function DailyView({
   updateTaskStatus,
   onMigrate,
   deleteTask,
+  readOnly = false,
 }: DailyViewProps) {
   const [viewDate, setViewDate] = useState(new Date(currentDate));
   const dateStr = toISODate(viewDate);
@@ -103,7 +105,7 @@ export function DailyView({
 
       <div className="pt-4 border-t border-border mt-4">
         {/* Passamos 'projects' para o form */}
-        <AddTaskForm dateStr={dateStr} onAdd={handleSmartAdd} projects={projects} />
+        <AddTaskForm dateStr={dateStr} onAdd={handleSmartAdd} projects={projects} disabled={readOnly} />
       </div>
     </div>
   );

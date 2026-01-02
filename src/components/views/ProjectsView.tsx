@@ -11,6 +11,7 @@ interface ProjectsViewProps {
   updateTaskStatus?: (dateStr: string, taskId: string, status: Task['status']) => void;
   onMigrate?: (dateStr: string, taskId: string) => void;
   deleteTask?: (dateStr: string, taskId: string) => void;
+  readOnly?: boolean;
 }
 
 export function ProjectsView({ 
@@ -20,34 +21,37 @@ export function ProjectsView({
   deleteProject,
   updateTaskStatus,
   onMigrate,
-  deleteTask
+  deleteTask,
+  readOnly = false,
 }: ProjectsViewProps) {
   const [newProject, setNewProject] = useState('');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const project = useMemo(
+    () => (selectedProjectId ? projects.find((p) => p.id === selectedProjectId) ?? null : null),
+    [projects, selectedProjectId]
+  );
+  const projectTasks = useMemo(() => {
+    if (!selectedProjectId) return [];
+    const found: { task: Task; dateStr: string }[] = [];
+    Object.entries(allTasks).forEach(([dateStr, tasks]) => {
+      tasks.forEach((task) => {
+        if (task.projectId === selectedProjectId) {
+          found.push({ task, dateStr });
+        }
+      });
+    });
+    return found.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+  }, [allTasks, selectedProjectId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProject.trim()) return;
+    if (readOnly || !newProject.trim()) return;
     addProject(newProject);
     setNewProject('');
   };
 
   // --- MODO DETALHE (DENTRO DA PASTA) ---
   if (selectedProjectId) {
-    const project = projects.find(p => p.id === selectedProjectId);
-    
-    const projectTasks = useMemo(() => {
-        const found: { task: Task, dateStr: string }[] = [];
-        Object.entries(allTasks).forEach(([dateStr, tasks]) => {
-            tasks.forEach(task => {
-                if (task.projectId === selectedProjectId) {
-                    found.push({ task, dateStr });
-                }
-            });
-        });
-        return found.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
-    }, [allTasks, selectedProjectId]);
-
     if (!project) return <div onClick={() => setSelectedProjectId(null)}>Voltar</div>;
 
     return (
@@ -124,11 +128,13 @@ export function ProjectsView({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (readOnly) return;
                     if (confirm('Apagar este projeto e suas tarefas?')) {
                       deleteProject(project.id);
                     }
                   }}
-                  className="p-2 text-gray-300 hover:text-[#d65a38] hover:bg-[#d65a38]/10 rounded-sm transition-colors"
+                  className="p-2 text-gray-300 hover:text-[#d65a38] hover:bg-[#d65a38]/10 rounded-sm transition-colors disabled:opacity-50"
+                  disabled={readOnly}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -149,11 +155,12 @@ export function ProjectsView({
                 value={newProject}
                 onChange={(e) => setNewProject(e.target.value)}
                 placeholder="Nome do novo projeto..."
-                className="flex-1 bg-transparent text-[#1a1a1a] placeholder:text-gray-400 text-base focus:outline-none"
+                className="flex-1 bg-transparent text-[#1a1a1a] placeholder:text-gray-400 text-base focus:outline-none disabled:opacity-60"
+                disabled={readOnly}
             />
             <button
                 type="submit"
-                disabled={!newProject.trim()}
+                disabled={!newProject.trim() || readOnly}
                 className="h-8 px-4 bg-[#1a1a1a] text-white text-sm font-bold rounded-sm disabled:opacity-50 hover:bg-black transition-colors"
             >
                 Criar

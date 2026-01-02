@@ -7,6 +7,8 @@ import { MonthlyView } from '@/components/views/MonthlyView';
 import { ProjectsView } from '@/components/views/ProjectsView';
 import { MigrationModal } from '@/components/MigrationModal';
 import { Info } from 'lucide-react'; // Import necessário para o botão de ajuda
+import { useEffect } from 'react';
+import { toast } from '@/components/ui/sonner';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('daily');
@@ -24,8 +26,11 @@ const Index = () => {
     addProject,
     deleteProject,
     getTasksForDate,
-    migrateTask
+    migrateTask,
+    errorMsg,
+    isConnected
   } = useBujo();
+  const readOnly = !isConnected;
 
   const views: { id: ViewType; label: string }[] = [
     { id: 'daily', label: 'Hoje' },
@@ -43,6 +48,12 @@ const Index = () => {
     await migrateTask(migrationTask.dateStr, migrationTask.taskId, target);
     setMigrationTask(null);
   };
+
+  useEffect(() => {
+    if (errorMsg) {
+      toast.error(errorMsg);
+    }
+  }, [errorMsg]);
 
   return (
     <div className="h-screen flex flex-col max-w-xl mx-auto bg-white text-[#1a1a1a]">
@@ -65,7 +76,7 @@ const Index = () => {
             >
                 <Info className="w-6 h-6" />
             </button>
-            <div className={`w-1.5 h-1.5 rounded-full ${!data ? 'bg-[#d65a38]' : 'bg-[#6f8b82]'}`} />
+            <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-[#6f8b82]' : 'bg-[#d65a38]'}`} />
         </div>
       </header>
 
@@ -88,6 +99,12 @@ const Index = () => {
           </button>
         ))}
       </nav>
+
+      {errorMsg && (
+        <div className="mx-4 mt-3 rounded-md border border-[#f9d3c5] bg-[#fff3ee] px-3 py-2 text-xs text-[#8a2f19]">
+          {errorMsg}
+        </div>
+      )}
 
       {/* MANUAL DE INSTRUÇÕES (LEGENDA) */}
       {showLegend && (
@@ -141,6 +158,7 @@ const Index = () => {
               updateTaskStatus={updateTaskStatus}
               onMigrate={handleMigrate}
               projects={data.projects} 
+              readOnly={readOnly}
             />
           )}
 
@@ -155,6 +173,7 @@ const Index = () => {
               updateTaskStatus={updateTaskStatus}
               onMigrate={handleMigrate}
               projects={data.projects} 
+              readOnly={readOnly}
             />
           )}
 
@@ -168,6 +187,7 @@ const Index = () => {
               updateTaskStatus={updateTaskStatus}
               onMigrate={handleMigrate}
               projects={data.projects} 
+              readOnly={readOnly}
             />
           )}
 
@@ -180,6 +200,7 @@ const Index = () => {
               updateTaskStatus={updateTaskStatus}
               onMigrate={handleMigrate}
               deleteTask={deleteTask}
+              readOnly={readOnly}
             />
           )}
         </div>

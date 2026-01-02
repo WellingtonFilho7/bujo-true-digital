@@ -19,6 +19,7 @@ interface WeeklyViewProps {
   updateTaskStatus: (dateStr: string, taskId: string, status: Task["status"]) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
   deleteTask: (dateStr: string, taskId: string) => void;
+  readOnly?: boolean;
 }
 
 export function WeeklyView({
@@ -31,6 +32,7 @@ export function WeeklyView({
   updateTaskStatus,
   onMigrate,
   deleteTask,
+  readOnly = false,
 }: WeeklyViewProps) {
   const [viewDate, setViewDate] = useState(new Date(currentDate));
   const weekStartDate = startOfWeek(viewDate);
@@ -148,7 +150,7 @@ export function WeeklyView({
 
       <div className="pt-4 border-t border-border mt-4">
         {/* Passando projects */}
-        <AddTaskForm dateStr={weekBaseDateStr} onAdd={handleSmartAdd} projects={projects} />
+        <AddTaskForm dateStr={weekBaseDateStr} onAdd={handleSmartAdd} projects={projects} disabled={readOnly} />
       </div>
     </div>
   );

@@ -18,6 +18,7 @@ interface MonthlyViewProps {
   updateTaskStatus: (dateStr: string, taskId: string, status: Task["status"]) => void;
   onMigrate: (dateStr: string, taskId: string) => void;
   deleteTask: (dateStr: string, taskId: string) => void;
+  readOnly?: boolean;
 }
 
 export function MonthlyView({
@@ -29,6 +30,7 @@ export function MonthlyView({
   updateTaskStatus,
   onMigrate,
   deleteTask,
+  readOnly = false,
 }: MonthlyViewProps) {
   const [viewDate, setViewDate] = useState(new Date(currentDate));
 
@@ -133,7 +135,7 @@ export function MonthlyView({
 
       <div className="pt-4 border-t border-border mt-4">
         {/* Passando projects */}
-        <AddTaskForm dateStr={firstDayStr} onAdd={handleSmartAdd} projects={projects} />
+        <AddTaskForm dateStr={firstDayStr} onAdd={handleSmartAdd} projects={projects} disabled={readOnly} />
       </div>
     </div>
   );

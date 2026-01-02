@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Task, Project, TaskType, TaskStatus } from "@/types/bujo";
 
+type TaskRow = {
+  id: string;
+  content: string;
+  type: TaskType;
+  status: TaskStatus;
+  date_str: string;
+  project_id?: string | null;
+};
+
 type TasksByDate = Record<string, Task[]>;
 
 function createSupabaseClient(): SupabaseClient | null {
@@ -15,6 +24,7 @@ function createSupabaseClient(): SupabaseClient | null {
 const supabase = createSupabaseClient();
 
 export function useBujo() {
+  const hasSupabase = !!supabase;
   const [tasks, setTasks] = useState<TasksByDate>({});
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -37,7 +47,7 @@ export function useBujo() {
   }, []);
 
   // Normalização de dados
-  const normalizeTasks = useCallback((rows: any[]): TasksByDate => {
+  const normalizeTasks = useCallback((rows: TaskRow[]): TasksByDate => {
     const organized: TasksByDate = {};
     for (const t of rows) {
       const dateStr = String(t.date_str);
@@ -54,7 +64,7 @@ export function useBujo() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    if (!supabase) { setErrorMsg("Sem conexão"); return; }
+    if (!supabase) { setErrorMsg("Sem conexão com Supabase"); return; }
     setErrorMsg(null);
 
     const [{ data: projData, error: projErr }, { data: taskData, error: taskErr }] =
@@ -77,7 +87,10 @@ export function useBujo() {
   // ATUALIZADO: Agora aceita projectId
   const addTask = useCallback(
     async (dateStr: string, content: string, type: TaskType, targetDate?: string, projectId?: string) => {
-      if (!supabase) return;
+      if (!supabase) {
+        setErrorMsg("Sem conexão com Supabase");
+        return;
+      }
 
       const finalDate = (targetDate || dateStr).trim();
       const trimmed = content.trim();
@@ -102,23 +115,28 @@ export function useBujo() {
   );
 
   const updateTaskStatus = useCallback(async (dateStr: string, taskId: string, status: TaskStatus) => {
-      if (!supabase) return;
+      if (!supabase) {
+        setErrorMsg("Sem conexão com Supabase");
+        return;
+      }
       const { error } = await supabase.from("tasks").update({ status }).eq("id", taskId);
       if (!error) await fetchData();
     }, [fetchData]);
 
   // Migração (mantida igual)
   const migrateTask = async (fromDateStr: string, taskId: string, target: 'tomorrow' | 'week' | 'month') => {
-    if (!supabase) return;
+    if (!supabase) { setErrorMsg("Sem conexão com Supabase"); return; }
     try {
-      // Lógica de cálculo de data (simplificada aqui para brevidade, use a mesma lógica anterior ou copie do seu código atual se preferir, a lógica de migração não mudou)
       const base = new Date(fromDateStr + 'T12:00:00');
       let targetDateStr = '';
       
       if (target === 'tomorrow') {
         base.setDate(base.getDate() + 1);
       } else if (target === 'week') {
-        base.setDate(base.getDate() + 7);
+        // Envia para a próxima segunda-feira
+        const day = base.getDay(); // 0-dom, 1-seg
+        const daysToNextMonday = (8 - day) % 7 || 7;
+        base.setDate(base.getDate() + daysToNextMonday);
       } else {
         base.setMonth(base.getMonth() + 1);
         base.setDate(1);
@@ -143,13 +161,13 @@ export function useBujo() {
   };
 
   const deleteTask = useCallback(async (dateStr: string, taskId: string) => {
-      if (!supabase) return;
+      if (!supabase) { setErrorMsg("Sem conexão com Supabase"); return; }
       const { error } = await supabase.from("tasks").delete().eq("id", taskId);
       if (!error) await fetchData();
     }, [fetchData]);
 
   const addProject = useCallback(async (name: string) => {
-      if (!supabase) return;
+      if (!supabase) { setErrorMsg("Sem conexão com Supabase"); return; }
       const trimmed = name.trim();
       if (!trimmed) return;
       const { error } = await supabase.from("projects").insert([{ name: trimmed }]);
@@ -158,7 +176,7 @@ export function useBujo() {
 
   // NOVO: Função para deletar projeto
   const deleteProject = useCallback(async (id: string) => {
-    if (!supabase) return;
+    if (!supabase) { setErrorMsg("Sem conexão com Supabase"); return; }
     const { error } = await supabase.from("projects").delete().eq("id", id);
     if (error) {
         setErrorMsg("Não foi possível apagar (verifique se tem tarefas)");
@@ -183,6 +201,7 @@ export function useBujo() {
     addProject,
     deleteProject, // Exportando a nova função
     errorMsg,
+    isConnected: hasSupabase && !errorMsg,
     getTasksForDate,
   };
 }
