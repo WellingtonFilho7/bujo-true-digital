@@ -6,8 +6,8 @@ import { WeeklyView } from '@/components/views/WeeklyView';
 import { MonthlyView } from '@/components/views/MonthlyView';
 import { ProjectsView } from '@/components/views/ProjectsView';
 import { MigrationModal } from '@/components/MigrationModal';
-import { Info } from 'lucide-react'; // Import necessário para o botão de ajuda
-import { useEffect } from 'react';
+import { Info, WifiOff, Wifi } from 'lucide-react'; // Import necessário para o botão de ajuda
+import { useEffect, useState } from 'react';
 import { toast } from '@/components/ui/sonner';
 
 const Index = () => {
@@ -31,6 +31,7 @@ const Index = () => {
     isConnected
   } = useBujo();
   const readOnly = !isConnected;
+  const [showInlineError, setShowInlineError] = useState(false);
 
   const views: { id: ViewType; label: string }[] = [
     { id: 'daily', label: 'Hoje' },
@@ -52,6 +53,9 @@ const Index = () => {
   useEffect(() => {
     if (errorMsg) {
       toast.error(errorMsg);
+      setShowInlineError(true);
+      const t = setTimeout(() => setShowInlineError(false), 6000);
+      return () => clearTimeout(t);
     }
   }, [errorMsg]);
 
@@ -76,19 +80,26 @@ const Index = () => {
             >
                 <Info className="w-6 h-6" />
             </button>
-            <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-[#6f8b82]' : 'bg-[#d65a38]'}`} />
+            <span
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                isConnected ? 'bg-[#6f8b82]/15 text-[#2f5149]' : 'bg-[#d65a38]/15 text-[#8a2f19]'
+              }`}
+            >
+              {isConnected ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
+              {isConnected ? 'Online' : 'Offline / Só leitura'}
+            </span>
         </div>
       </header>
 
       {/* NAV */}
-      <nav className="flex px-5 border-b border-gray-100 overflow-x-auto hide-scrollbar gap-8 mt-4">
+      <nav className="flex px-5 border-b border-gray-100 overflow-x-auto hide-scrollbar gap-6 mt-4">
         {views.map(v => (
           <button
             key={v.id}
             onClick={() => setCurrentView(v.id)}
-            className={`pb-3 text-sm transition-all relative shrink-0 ${
+            className={`pb-3 text-base transition-all relative shrink-0 px-1 rounded ${
               currentView === v.id 
-                ? 'font-bold text-[#d65a38]' 
+                ? 'font-bold text-[#d65a38] bg-[#d65a38]/10'
                 : 'font-medium text-gray-400 hover:text-[#1a1a1a]'
             }`}
           >
@@ -100,9 +111,12 @@ const Index = () => {
         ))}
       </nav>
 
-      {errorMsg && (
-        <div className="mx-4 mt-3 rounded-md border border-[#f9d3c5] bg-[#fff3ee] px-3 py-2 text-xs text-[#8a2f19]">
-          {errorMsg}
+      {errorMsg && showInlineError && (
+        <div className="mx-4 mt-3 rounded-md border border-[#f9d3c5] bg-[#fff3ee] px-3 py-2 text-xs text-[#8a2f19] flex items-center justify-between">
+          <span>{errorMsg}</span>
+          <button onClick={() => setShowInlineError(false)} className="text-[#8a2f19] font-bold px-2">
+            ×
+          </button>
         </div>
       )}
 

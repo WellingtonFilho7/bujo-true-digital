@@ -57,16 +57,19 @@ export function ProjectsView({
     return (
         <div className="h-full flex flex-col bg-white">
             {/* Cabeçalho Minimalista */}
-            <div className="flex items-center gap-3 mb-2 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2 mb-2 pb-4 border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur-sm">
                 <button 
                     onClick={() => setSelectedProjectId(null)} 
                     className="p-2 -ml-2 hover:bg-gray-100 rounded-sm text-gray-500 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="flex items-center gap-2">
-                    <Folder className="w-5 h-5 text-[#6f8b82]" /> {/* Sálvia */}
-                    <h2 className="text-xl font-semibold text-[#1a1a1a]">{project.name}</h2>
+                <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                        <Folder className="w-5 h-5 text-[#6f8b82]" /> {/* Sálvia */}
+                        <h2 className="text-xl font-semibold text-[#1a1a1a]">{project.name}</h2>
+                    </div>
+                    <span className="text-[11px] uppercase tracking-wide text-gray-400">Projetos / {project.name}</span>
                 </div>
             </div>
             
