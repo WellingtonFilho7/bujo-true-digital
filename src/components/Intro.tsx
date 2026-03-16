@@ -12,7 +12,7 @@ export function Intro() {
         {photoVisible && (
           <div className="mb-10 rounded-xl overflow-hidden bg-stone-200 aspect-[4/3] md:aspect-[16/7]">
             <img
-              src="/images/familia.jpg"
+              src="/images/familia.jpeg"
               alt="Wellington, Dyanna e os filhos"
               className="w-full h-full object-cover"
               onError={() => setPhotoVisible(false)}

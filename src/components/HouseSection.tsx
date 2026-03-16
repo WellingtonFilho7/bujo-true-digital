@@ -35,7 +35,7 @@ export function HouseSection() {
               photos[i] ? (
                 <div key={i} className="rounded-lg overflow-hidden bg-stone-200 aspect-[4/3]">
                   <img
-                    src={`/images/casa-${i + 1}.jpg`}
+                    src={`/images/casa-${i + 1}.jpeg`}
                     alt=""
                     className="w-full h-full object-cover"
                     onError={() => hide(i)}
