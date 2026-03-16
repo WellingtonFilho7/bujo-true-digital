@@ -1,102 +1,32 @@
-// =============================================================
-// CONTEÚDO NARRATIVO DA CAMPANHA
-// Edite os textos abaixo para contar a história de vocês.
-// =============================================================
-
 export const story = {
-  // ----------------------------------------------------------
-  // SEÇÃO: NOSSA HISTÓRIA
-  // ----------------------------------------------------------
+  // Seção de abertura
+  opening: [
+    `Depois de mais de dois anos viajando toda semana para Gurinhém, estamos nos mudando. Foram mais de 120 viagens — 80 km para ir, 80 km para voltar. Com três filhos pequenos, cada fim de semana virava uma pequena mudança: bagagens, materiais, o que as crianças precisam para dias fora de casa. Em muitas ocasiões dormimos na casa de irmãos da igreja.`,
+    `Nosso desejo sempre foi simples: estar mais perto da comunidade que pastoreamos ali.`,
+  ],
 
-  // EDITE: Parágrafo de apresentação (quem são vocês)
-  intro: `
-    Somos João e Maria, um casal que há [X] anos escolheu deixar o conforto da cidade
-    para viver onde o Evangelho ainda não chegou com força. Trabalhamos em comunidades
-    periféricas, ao lado de famílias que carregam histórias pesadas e sonhos teimosos.
-    Não somos missionários de palco — somos de vizinhança, de mesa posta, de porta aberta.
-  `,
+  // Seção: O trabalho em Gurinhém
+  gurinhemTitle: "Dois anos em Gurinhém",
+  gurinhemParagraphs: [
+    `Gurinhém fica no Agreste da Paraíba, a cerca de 80 km de onde moramos hoje. É uma cidade do interior nordestino com todas as características que isso implica — laços fortes, histórias pesadas, e uma comunidade evangélica que carregava marcas do passado.`,
+    `O pequeno grupo que caminhamos ali foi muito machucado por lideranças indiferentes, preocupadas apenas em fazer as coisas darem certo. Dois anos não apagam tudo. Mas pela graça de Deus temos visto algo acontecer: pessoas sendo cuidadas, restauradas, redescobrindo que a igreja pode ser uma família onde o amor é vivido sem interesses.`,
+    `Desde que começamos a ir para Gurinhém, nossa renda não aumentou. Temos mantenedores que nos apoiam de forma geral, e somos gratos por cada um. Localmente, alguns irmãos têm ajudado com combustível para as viagens semanais. Mas não temos nenhum apoio específico para o trabalho em Gurinhém. Toda semana a viagem tem custo — e agora vêm a mudança e a obra.`,
+  ],
 
-  // EDITE: O que vocês fazem no dia a dia
-  ministry: `
-    No dia a dia, isso significa [descreva: cultos em casas, aulas de reforço,
-    acolhimento de famílias, grupos de jovens, etc.]. Cada semana traz uma história
-    nova de como um simples gesto pode mudar a trajetória de uma vida.
-  `,
+  // Seção: A casa
+  houseTitle: "Encontramos a casa",
+  houseParagraphs: [
+    `Durante 8 meses procuramos uma casa para alugar sem achar nenhum proprietário disposto a oferecer contrato de mais de um ano que coubesse no nosso orçamento. Semanas atrás isso mudou.`,
+    `A casa estava fechada há mais de 18 meses. Terreno tomado por mato, poeira acumulada, casas de maribondo, pintura antiga, elétrica e hidráulica a revisar. Tem muito serviço pela frente. Mas quando entramos, tivemos a mesma impressão: é uma casa boa. Só precisa de cuidado.`,
+    `Além da reforma, queremos construir uma sala simples de cerca de 25 m² na lateral. Somos uma família que educa os filhos em casa — precisamos de um espaço organizado para estudo, livros e materiais. Esse mesmo espaço vai servir de escritório, sala de reuniões e quarto de hóspedes para quem nos visita.`,
+  ],
 
-  // ----------------------------------------------------------
-  // SEÇÃO: O CHAMADO PARA O INTERIOR
-  // ----------------------------------------------------------
+  // Necessidades
+  needsText: `Nosso objetivo imediato é levantar R$\u00a05 mil — com isso já conseguimos fazer o essencial para entrar na casa. O custo total da mudança e dos reparos essenciais fica entre R$\u00a04 mil e R$\u00a06 mil. Para a construção da sala, entre R$\u00a014 mil e R$\u00a017 mil.`,
 
-  // EDITE: Por que estão indo para o interior
-  callTitle: "Por que o interior?",
+  // Convite
+  inviteText: `Se você quer participar do que está acontecendo no Agreste da Paraíba, esse é o momento mais concreto que já tivemos para isso. Você pode contribuir via Pix ou entrar em contato pelo WhatsApp. Se quiser saber mais antes de decidir qualquer coisa, é só mandar mensagem.`,
 
-  callText: `
-    Há [tempo], sentimos um chamado que não conseguíamos silenciar. Uma região,
-    um povo, uma necessidade que ficava na memória como uma oração sem resposta.
-    Depois de meses de discernimento, de conversas, de espera —
-    chegou a clareza: é hora de ir.
-  `,
-
-  // EDITE: O que esperam fazer no interior
-  callVision: `
-    Não sabemos tudo que acontecerá, mas sabemos o tipo de presença que queremos ser:
-    constante, amorosa, enraizada. Uma presença que serve antes de pregar,
-    que ouve antes de responder, que fica quando fica difícil.
-  `,
-
-  // ----------------------------------------------------------
-  // SEÇÃO: A NOVA CASA
-  // ----------------------------------------------------------
-
-  houseTitle: "A casa que será nosso lar",
-
-  // EDITE: Descrição da situação atual da casa
-  houseText: `
-    Encontramos uma casa para alugar em [localidade]. Ela tem o que precisamos:
-    espaço, localização próxima às famílias que atenderemos, e um quintal que,
-    com o tempo, pode se tornar um lugar de encontro.
-    Mas ela precisa de alguns reparos antes de podermos nos instalar com segurança.
-  `,
-
-  // EDITE: Por que a reforma importa para o ministério
-  houseWhy: `
-    Uma casa estruturada não é luxo — é ferramenta. É de lá que sairemos para visitar,
-    é para lá que convidaremos para conversar, orar, comer juntos.
-    Ela é a base que nos permite estar presentes de forma sustentável.
-  `,
-
-  // ----------------------------------------------------------
-  // SEÇÃO: TRANSPARÊNCIA
-  // ----------------------------------------------------------
-
-  transparencyTitle: "Como os recursos serão usados",
-
-  transparencyText: `
-    Toda contribuição será destinada exclusivamente à reforma da casa.
-    À medida que os serviços forem sendo realizados, enviaremos fotos e notas
-    para os apoiadores que contribuírem. Nada vai para custeio pessoal —
-    para isso temos nossos mantenedores mensais.
-    Se sobrar algo após a reforma, o valor será destinado ao ministério no interior
-    e comunicado abertamente.
-  `,
-
-  // EDITE: Data ou frequência dos relatórios
-  transparencyReport: `
-    Relatório de progresso a cada nova etapa concluída,
-    enviado diretamente pelo WhatsApp para quem apoiar.
-  `,
-
-  // ----------------------------------------------------------
-  // CHAMADA FINAL / CONVITE
-  // ----------------------------------------------------------
-
-  finalCallTitle: "Você faz parte disso",
-
-  finalCallText: `
-    Não estamos pedindo que você nos sustente — estamos convidando você
-    a investir em algo que vai além de nós. Cada real aplicado aqui
-    financia presença, relacionamento, e a possibilidade de que
-    uma comunidade inteira encontre esperança.
-    Se isso ressoa em você, queremos te conhecer.
-  `,
+  closing: `Obrigado por caminhar com a gente até aqui.`,
+  signature: `Em Cristo, Wellington e Dyanna Nascimento`,
 }
