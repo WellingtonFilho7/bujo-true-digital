@@ -44,6 +44,7 @@ Wellington usa linguagem teológica de forma integrada, nunca decorativa.
 - ❌ "marcado por [lista de coisas]" — estrutura GPT clássica
 - ❌ Citação bíblica como encerramento decorativo
 - ❌ "o Senhor continuará conduzindo tudo com sabedoria e graça" — performático
+- ❌ Frases que soam apelativas mesmo sendo verdadeiras — ex: "com a gasolina que Deus vai provendo e o carro que vai aguentando". Wellington prefere dizer a necessidade de forma direta, sem embrulhar em linguagem de fé para gerar emoção.
 
 ---
 
@@ -119,13 +120,13 @@ Convite concreto, não poesia.
 - **Bema** — cards educativos para famílias (bemaeducation.com.br)
 
 ### A mudança para Gurinhém
-- Mais de 2 anos fazendo o trajeto
-- 8 meses procurando uma casa
+- Mais de 2 anos fazendo o trajeto semanal
+- 8 meses procurando uma casa sem encontrar — a notícia estava represada pela falta de casa, não por escolha de timing
 - Casa encontrada, estava abandonada há 18+ meses (sem visita do proprietário)
 - Precisa de: limpeza pesada, reforma geral
 - Projeto: construir sala multipropósito ao lado da casa (escritório, estudo das crianças, quarto de hóspedes, sala de reuniões)
-- Viagens atuais: semanais, custam em combustível + desgaste do carro
-- Renda não aumentou. Apoio atual para deslocamento é "modesto, mas fiel"
+- Viagens atuais: semanais, com custo de gasolina + desgaste (pneu, mecânica)
+- Wellington tem mantenedores gerais — mas **não tem apoio designado especificamente para o trabalho em Gurinhém**. Essa distinção é importante ao comunicar necessidades: não está pedindo para substituir o apoio geral, está pedindo por algo que ainda não existe.
 
 ---
 
