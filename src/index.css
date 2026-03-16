@@ -2,13 +2,15 @@
 
 @theme {
   --font-serif: "Lora", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Spectral", Georgia, serif;
 }
 
 body {
   font-family: var(--font-sans);
   background-color: #faf9f7;
   color: #3d3530;
+  font-size: 17px;
+  line-height: 1.75;
   margin: 0;
 }
 

@@ -1,20 +1,24 @@
+import { useState } from 'react'
 import { campaign } from '../config/campaign'
 import { story } from '../content/story'
 
 export function Intro() {
+  const [photoVisible, setPhotoVisible] = useState(true)
+
   return (
     <section className="pt-16 pb-12 px-6">
       <div className="max-w-2xl mx-auto">
 
-        {/* Foto da família */}
-        <div className="mb-10 rounded-xl overflow-hidden bg-stone-200 aspect-[4/3] md:aspect-[16/7]">
-          <img
-            src="/images/familia.jpg"
-            alt="Wellington, Dyanna e os filhos"
-            className="w-full h-full object-cover"
-            onError={(e) => { e.currentTarget.style.display = 'none' }}
-          />
-        </div>
+        {photoVisible && (
+          <div className="mb-10 rounded-xl overflow-hidden bg-stone-200 aspect-[4/3] md:aspect-[16/7]">
+            <img
+              src="/images/familia.jpg"
+              alt="Wellington, Dyanna e os filhos"
+              className="w-full h-full object-cover"
+              onError={() => setPhotoVisible(false)}
+            />
+          </div>
+        )}
 
         <p className="text-amber-700 text-xs font-medium tracking-widest uppercase mb-3">
           {campaign.location}
@@ -26,7 +30,7 @@ export function Intro() {
 
         <div className="space-y-5">
           {story.opening.map((p, i) => (
-            <p key={i} className="text-stone-600 text-lg leading-relaxed">
+            <p key={i} className="text-stone-600 leading-relaxed">
               {p}
             </p>
           ))}
