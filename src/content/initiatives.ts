@@ -3,6 +3,7 @@ export interface Initiative {
   label: string
   title: string
   paragraphs: string[]
+  image?: string
   link?: {
     text: string
     url?: string // Adicione a URL quando disponível
@@ -14,6 +15,7 @@ export const initiatives: Initiative[] = [
     id: "igreja-local",
     label: "Igreja local",
     title: "Igreja Comum — Gurinhém",
+    image: '/images/frente-igreja.jpg',
     paragraphs: [
       "Wellington serve como pastor na Igreja Comum, uma comunidade na cidade de Gurinhém, no interior da Paraíba. O trabalho envolve ensino das Escrituras, acompanhamento próximo de pessoas e formação de uma vida comunitária real, marcada por cuidado mútuo e responsabilidade.",
       "Depois de mais de dois anos viajando toda semana — mais de 120 viagens, 80 km de ida e 80 km de volta — a família está se mudando para Gurinhém. O objetivo sempre foi simples: estar mais perto da comunidade que pastoreiam ali.",
@@ -47,6 +49,7 @@ export const initiatives: Initiative[] = [
     id: "lumine",
     label: "Educação",
     title: "Lumine",
+    image: '/images/frente-lumine.jpg',
     paragraphs: [
       "O Lumine é um projeto educacional voltado para crianças em situação de vulnerabilidade social. Funciona como um contraturno escolar, com foco em pré-alfabetização, alfabetização e literatura.",
       "Mais do que reforço escolar, o trabalho busca formar crianças com base em uma visão cristã do mundo, cuidando não só do aprendizado, mas também do caráter. Esse cuidado naturalmente alcança as famílias, à medida que as crianças crescem e levam isso para dentro de casa.",
