@@ -31,21 +31,26 @@ A "missionário contemporâneo" aesthetic — warm, human, photographic. Compara
 ### Typography
 - **Headings:** Lora (serif, Google Fonts) — warm, readable, editorial feel
 - **Body / labels:** Inter (sans-serif, already in use)
-- Implementation: add Lora via `@import` in `index.css`, extend `tailwind.config.js`:
-  ```js
-  theme: {
-    extend: {
-      fontFamily: { serif: ['Lora', 'Georgia', 'serif'] },
-      colors: {
-        canvas: '#FAF8F5',      // bg-canvas
-        surface: '#F0EDE8',     // bg-surface
-        accent: '#A8522A',      // text-accent, bg-accent
-        ink: '#1C1917',         // bg-ink (dark sections)
-      }
-    }
-  }
-  ```
-  Use these tokens (`bg-canvas`, `bg-surface`, `bg-ink`, `text-accent`) throughout components instead of arbitrary hex values.
+
+### Implementation — `src/index.css` (Tailwind v4)
+This project uses **Tailwind CSS v4** (`tailwindcss@^4.2.1` with `@tailwindcss/vite`). There is no `tailwind.config.js` — all theme customization is done via `@theme` in `src/index.css`.
+
+Add to the existing `@theme` block:
+```css
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: "Lora", "Georgia", serif;
+
+  --color-canvas: #FAF8F5;
+  --color-surface: #F0EDE8;
+  --color-ink: #1C1917;
+  --color-accent: #A8522A;
+}
+```
+
+Usage in components: `font-serif` (Lora), `bg-canvas`, `bg-surface`, `bg-ink`, `text-accent`, `bg-accent`.
 
 ### Design Principles
 - Remove decorative `border-stone-100` dividers — use spatial rhythm instead
@@ -173,8 +178,7 @@ Photos 2–4 are optional and can be added later. Photo 1 is required for the He
 
 | File | Change |
 |------|--------|
-| `src/index.css` | Import Lora from Google Fonts |
-| `tailwind.config.js` | Extend with `fontFamily.serif: ['Lora', 'Georgia', 'serif']` and custom color tokens |
+| `src/index.css` | Import Lora (Google Fonts), add `--font-serif` and color tokens to `@theme` block |
 | `src/App.tsx` | Nav scroll-aware transparency behavior, updated section order |
 | `src/components/HeroSection.tsx` | Full-bleed photo, gradient overlay, repositioned content |
 | `src/components/StatsStrip.tsx` | Warm palette, Lora values, correct rendering for col 3 |
