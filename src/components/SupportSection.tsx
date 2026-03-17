@@ -12,8 +12,17 @@ function WhatsAppIcon() {
   )
 }
 
+function ShareIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="w-4 h-4 shrink-0">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+    </svg>
+  )
+}
+
 export function SupportSection() {
   const [copied, setCopied] = useState(false)
+  const [shared, setShared] = useState(false)
   const whatsappUrl = `https://wa.me/${campaign.whatsappNumber}?text=${encodeURIComponent(campaign.whatsappMessage)}`
   const qr = pixPayload(campaign.pixKey, campaign.pixName)
 
@@ -21,6 +30,20 @@ export function SupportSection() {
     await navigator.clipboard.writeText(campaign.pixKey)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  async function handleShare() {
+    if (navigator.share) {
+      await navigator.share({
+        title: `${campaign.coupleName} — ${campaign.location}`,
+        text: "Conheça o trabalho de Wellington e Dyanna em Gurinhém, PB.",
+        url: window.location.href,
+      })
+    } else {
+      await navigator.clipboard.writeText(window.location.href)
+      setShared(true)
+      setTimeout(() => setShared(false), 2000)
+    }
   }
 
   return (
@@ -39,35 +62,38 @@ export function SupportSection() {
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 md:gap-12">
-
-          {/* Pix */}
-          <div className="flex-1 bg-white border border-stone-200 p-8">
-            <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-5">Pix</p>
-
-            <div className="flex flex-col sm:flex-row gap-8 items-start">
-              <div className="border border-stone-100 p-2 shrink-0">
-                <QRCodeSVG value={qr} size={120} level="M" />
+        {/* Pix — elemento dominante */}
+        <div className="bg-stone-900 p-8 md:p-12 mb-6">
+          <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-8">
+            Apoio financeiro — Pix
+          </p>
+          <div className="flex flex-col md:flex-row gap-10 md:gap-16 items-start md:items-center">
+            <div className="border-2 border-stone-700 p-3 shrink-0">
+              <QRCodeSVG value={qr} size={160} level="M" bgColor="#1c1917" fgColor="#f5f5f4" />
+            </div>
+            <div className="flex flex-col gap-5">
+              <div>
+                <p className="text-xs text-stone-500 mb-1 tracking-wide">Chave CPF</p>
+                <p className="font-mono text-xl md:text-2xl font-semibold text-white tracking-tight">
+                  {campaign.pixKey}
+                </p>
+                <p className="text-sm text-stone-400 mt-1">{campaign.pixName}</p>
               </div>
-              <div className="flex flex-col justify-center gap-3">
-                <div>
-                  <p className="text-xs text-stone-400 mb-0.5">Chave CPF</p>
-                  <p className="font-mono text-sm text-stone-800">{campaign.pixKey}</p>
-                  <p className="text-xs text-stone-400 mt-0.5">{campaign.pixName}</p>
-                </div>
-                <button
-                  onClick={copyKey}
-                  className="self-start text-xs border border-stone-300 hover:border-stone-600 text-stone-600 hover:text-stone-900 px-3 py-1.5 transition-colors"
-                >
-                  {copied ? '✓ Chave copiada' : 'Copiar chave'}
-                </button>
-              </div>
+              <button
+                onClick={copyKey}
+                className="self-start text-sm font-medium bg-white text-stone-900 hover:bg-stone-100 px-5 py-2.5 transition-colors"
+              >
+                {copied ? '✓ Chave copiada' : 'Copiar chave Pix'}
+              </button>
             </div>
           </div>
+        </div>
 
-          {/* WhatsApp */}
-          <div className="flex-1 bg-white border border-stone-200 p-8 flex flex-col">
-            <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-5">WhatsApp</p>
+        {/* WhatsApp + Compartilhar — secundários, lado a lado */}
+        <div className="grid md:grid-cols-2 gap-4">
+
+          <div className="bg-white border border-stone-200 p-7 flex flex-col">
+            <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-4">WhatsApp</p>
             <p className="text-stone-600 text-[15px] leading-relaxed mb-6 flex-1">
               Para conversar, tirar dúvidas ou se tornar um mantenedor — é só chamar.
             </p>
@@ -75,11 +101,25 @@ export function SupportSection() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="self-start inline-flex items-center gap-2 text-sm border border-stone-300 hover:border-stone-600 text-stone-700 hover:text-stone-900 px-4 py-2 transition-colors"
+              className="self-start inline-flex items-center gap-2 text-sm font-medium border border-stone-800 text-stone-900 hover:bg-stone-900 hover:text-white px-4 py-2.5 transition-colors"
             >
               <WhatsAppIcon />
               Mandar mensagem
             </a>
+          </div>
+
+          <div className="bg-white border border-stone-200 p-7 flex flex-col">
+            <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-4">Compartilhar</p>
+            <p className="text-stone-600 text-[15px] leading-relaxed mb-6 flex-1">
+              Indicar essa página para alguém que se importe também é uma forma de apoiar.
+            </p>
+            <button
+              onClick={handleShare}
+              className="self-start inline-flex items-center gap-2 text-sm font-medium border border-stone-800 text-stone-900 hover:bg-stone-900 hover:text-white px-4 py-2.5 transition-colors"
+            >
+              <ShareIcon />
+              {shared ? 'Link copiado' : 'Compartilhar página'}
+            </button>
           </div>
 
         </div>
