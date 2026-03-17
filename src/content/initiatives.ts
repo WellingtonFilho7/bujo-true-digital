@@ -17,8 +17,9 @@ export const initiatives: Initiative[] = [
     title: "Igreja Comum — Gurinhém",
     image: '/images/frente-igreja.jpg',
     paragraphs: [
-      "Wellington serve como pastor na Igreja Comum, uma comunidade na cidade de Gurinhém, no interior da Paraíba. O trabalho envolve ensino das Escrituras, acompanhamento próximo de pessoas e formação de uma vida comunitária real, marcada por cuidado mútuo e responsabilidade.",
-      "Depois de mais de dois anos viajando toda semana — mais de 120 viagens, 80 km de ida e 80 km de volta — a família está se mudando para Gurinhém. O objetivo sempre foi simples: estar mais perto da comunidade que pastoreiam ali.",
+      "Wellington serve como pastor na Igreja Comum, uma comunidade na cidade de Gurinhém, no interior da Paraíba.",
+      "O trabalho envolve ensino das Escrituras, cuidado próximo das pessoas e a formação de uma vida compartilhada, onde a fé é vivida no cotidiano.",
+      "A igreja se constrói na perseverança na doutrina, na comunhão, no partir do pão e nas orações.",
     ],
   },
   {
@@ -26,23 +27,27 @@ export const initiatives: Initiative[] = [
     label: "Movimento cristão",
     title: "Iniciativa Retornar",
     paragraphs: [
-      "A Iniciativa Retornar é um movimento cristão voltado ao relacionamento com o povo judeu, à conscientização sobre o antissemitismo e ao ensino da Igreja sobre Israel. O foco é ajudar cristãos a compreenderem sua fé com mais profundidade bíblica, reconhecendo as raízes da fé e o lugar de Israel na história de Deus.",
+      "A Iniciativa Retornar é um movimento cristão dedicado a reconstruir a relação entre a Igreja e o povo judeu.",
+      "Atuamos no ensino bíblico sobre Israel, na conscientização sobre o antissemitismo — inclusive dentro da própria história cristã — e no chamado ao arrependimento, à verdade e à reconciliação.",
+      "Nosso objetivo é ajudar cristãos a compreenderem sua fé a partir das Escrituras, reconhecendo as raízes judaicas do evangelho e o lugar de Israel no plano de Deus.",
     ],
     link: {
-      text: "iniciativaretornar.com.br",
-      // url: "https://iniciativaretornar.com.br",
+      text: "iniciativaretornar.org",
+      // url: "https://iniciativaretornar.org",
     },
   },
   {
     id: "bema",
     label: "Plataforma de ensino",
-    title: "BEMA",
+    title: "Bema Education",
     paragraphs: [
-      "O BEMA é uma plataforma de ensino que ajuda famílias a discipular seus filhos com mais intencionalidade. Criamos materiais simples, visuais e aplicáveis no dia a dia, que auxiliam pais na formação de virtudes, na leitura da realidade e na construção de uma cultura de aprendizado dentro de casa.",
+      "O bema é uma plataforma de formação que apoia famílias no ensino dos filhos.",
+      "Seus materiais são instrumentos simples para o dia a dia, que ajudam pais a conduzir a formação com mais clareza, trabalhando virtudes, hábitos e leitura da realidade.",
+      "Não é um currículo fechado, nem substitui a família. É um apoio para educar com intenção.",
     ],
     link: {
-      text: "bema.com.br",
-      // url: "https://bema.com.br",
+      text: "bemaeducation.com.br",
+      // url: "https://bemaeducation.com.br",
     },
   },
   {
@@ -55,8 +60,8 @@ export const initiatives: Initiative[] = [
       "Mais do que reforço escolar, o trabalho busca formar crianças com base em uma visão cristã do mundo, cuidando não só do aprendizado, mas também do caráter. Esse cuidado naturalmente alcança as famílias, à medida que as crianças crescem e levam isso para dentro de casa.",
     ],
     link: {
-      text: "lumine.org.br",
-      // url: "https://lumine.org.br",
+      text: "institutolumine.org",
+      // url: "https://institutolumine.org",
     },
   },
   {
