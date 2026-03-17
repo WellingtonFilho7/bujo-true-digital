@@ -24,66 +24,69 @@ export function SupportSection() {
   }
 
   return (
-    <section id="como-ajudar" className="py-14 px-6 border-t border-stone-100">
-      <div className="max-w-2xl mx-auto">
+    <section id="como-ajudar" className="py-16 md:py-24 px-6 bg-stone-50 border-t border-stone-100">
+      <div className="max-w-5xl mx-auto">
 
-        <p className="text-amber-700 text-xs font-medium tracking-widest uppercase mb-3">
-          Como ajudar
-        </p>
+        <div className="mb-12 md:mb-16">
+          <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-3">
+            Como ajudar
+          </p>
+          <h2 className="text-2xl md:text-3xl font-semibold text-stone-900 leading-snug mb-5">
+            Caminhar junto
+          </h2>
+          <p className="text-stone-600 text-[15px] leading-relaxed max-w-xl">
+            {family.supportIntro}
+          </p>
+        </div>
 
-        <p className="text-stone-600 leading-relaxed mb-12 max-w-xl">
-          {family.supportIntro}
-        </p>
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12">
 
-        {/* Pix */}
-        <div className="mb-12">
-          <p className="text-stone-800 font-serif text-lg mb-6">Pix</p>
+          {/* Pix */}
+          <div className="flex-1 bg-white border border-stone-200 p-8">
+            <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-5">Pix</p>
 
-          <div className="flex flex-col sm:flex-row gap-8 items-start">
-            <div className="bg-white border border-stone-200 rounded-xl p-3 shrink-0">
-              <QRCodeSVG value={qr} size={148} level="M" />
-            </div>
-
-            <div className="flex flex-col justify-center gap-4">
-              <div>
-                <p className="text-stone-400 text-xs mb-1">Chave CPF</p>
-                <p className="text-stone-700 font-mono text-base">{campaign.pixKey}</p>
-                <p className="text-stone-400 text-xs mt-1">{campaign.pixName}</p>
+            <div className="flex flex-col sm:flex-row gap-8 items-start">
+              <div className="border border-stone-100 p-2 shrink-0">
+                <QRCodeSVG value={qr} size={120} level="M" />
               </div>
-              <button
-                onClick={copyKey}
-                className="self-start text-xs border border-stone-300 hover:border-stone-500 text-stone-600 hover:text-stone-900 px-4 py-2 rounded-lg transition-colors"
-              >
-                {copied ? 'Chave copiada' : 'Copiar chave'}
-              </button>
+              <div className="flex flex-col justify-center gap-3">
+                <div>
+                  <p className="text-xs text-stone-400 mb-0.5">Chave CPF</p>
+                  <p className="font-mono text-sm text-stone-800">{campaign.pixKey}</p>
+                  <p className="text-xs text-stone-400 mt-0.5">{campaign.pixName}</p>
+                </div>
+                <button
+                  onClick={copyKey}
+                  className="self-start text-xs border border-stone-300 hover:border-stone-600 text-stone-600 hover:text-stone-900 px-3 py-1.5 transition-colors"
+                >
+                  {copied ? '✓ Chave copiada' : 'Copiar chave'}
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* WhatsApp */}
+          <div className="flex-1 bg-white border border-stone-200 p-8 flex flex-col">
+            <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-5">WhatsApp</p>
+            <p className="text-stone-600 text-[15px] leading-relaxed mb-6 flex-1">
+              Para conversar, tirar dúvidas ou se tornar um mantenedor — é só chamar.
+            </p>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="self-start inline-flex items-center gap-2 text-sm border border-stone-300 hover:border-stone-600 text-stone-700 hover:text-stone-900 px-4 py-2 transition-colors"
+            >
+              <WhatsAppIcon />
+              Mandar mensagem
+            </a>
+          </div>
+
         </div>
 
-        {/* Divisor */}
-        <div className="border-t border-stone-100 mb-12" />
-
-        {/* WhatsApp */}
-        <div className="mb-16">
-          <p className="text-stone-800 font-serif text-lg mb-3">WhatsApp</p>
-          <p className="text-stone-500 text-sm leading-relaxed mb-5 max-w-sm">
-            Para conversar, tirar dúvidas ou se tornar um mantenedor — é só chamar.
-          </p>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm border border-stone-300 hover:border-stone-500 text-stone-600 hover:text-stone-900 px-5 py-2.5 rounded-lg transition-colors"
-          >
-            <WhatsAppIcon />
-            Mandar mensagem
-          </a>
-        </div>
-
-        {/* Assinatura */}
-        <div className="border-t border-stone-100 pt-10">
-          <p className="text-stone-500 text-base">{family.closing}</p>
-          <p className="text-stone-600 font-serif text-base italic mt-1">{family.signature}</p>
+        <div className="mt-14 pt-10 border-t border-stone-200">
+          <p className="text-stone-500 text-[15px]">{family.closing}</p>
+          <p className="text-stone-700 text-[15px] mt-1 italic">{family.signature}</p>
         </div>
 
       </div>

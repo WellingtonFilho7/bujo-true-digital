@@ -1,27 +1,31 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap');
+
 @theme {
-  --font-serif: "Lora", Georgia, serif;
-  --font-sans: "Spectral", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #faf9f7;
-  color: #3d3530;
-  font-size: 17px;
-  line-height: 1.75;
+  background-color: #ffffff;
+  color: #1c1917;
+  font-size: 16px;
+  line-height: 1.7;
   margin: 0;
-}
-
-h1, h2, h3 {
-  font-family: var(--font-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   width: 100%;
 }
 
-html {
-  scroll-behavior: smooth;
+/* Offset para nav fixa */
+section[id] {
+  scroll-margin-top: 60px;
 }
