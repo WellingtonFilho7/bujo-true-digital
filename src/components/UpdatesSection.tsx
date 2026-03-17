@@ -6,14 +6,14 @@ export function UpdatesSection() {
   const [latest, ...rest] = updates
 
   return (
-    <section id="diario" className="py-16 md:py-24 px-6">
+    <section id="diario" className="bg-canvas py-16 md:py-24 px-6">
       <div className="max-w-5xl mx-auto">
 
         <div className="mb-12 md:mb-16">
           <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-3">
             Diário de campo
           </p>
-          <h2 className="text-2xl md:text-3xl font-semibold text-stone-900 leading-snug">
+          <h2 className="font-serif text-2xl md:text-3xl font-semibold text-stone-900 leading-snug">
             Atualizações
           </h2>
         </div>
@@ -24,7 +24,7 @@ export function UpdatesSection() {
             <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-4">
               {latest.date}
             </p>
-            <h3 className="text-xl font-semibold text-stone-900 leading-snug mb-6">
+            <h3 className="font-serif text-xl font-semibold text-stone-900 leading-snug mb-6">
               {latest.title}
             </h3>
             <div className="space-y-4">
@@ -57,7 +57,7 @@ export function UpdatesSection() {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-base font-semibold text-stone-900 mb-3">
+                  <h3 className="font-serif text-base font-semibold text-stone-900 mb-3">
                     {update.title}
                   </h3>
                   <div className="space-y-3">
