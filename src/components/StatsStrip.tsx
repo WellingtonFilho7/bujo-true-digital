@@ -1,25 +1,30 @@
-const stats = [
-  { value: "5", label: "filhos" },
-  { value: "3", label: "frentes" },
-  { value: "Igreja · Escola · Casa", label: "em um lugar" },
-  { value: "Gurinhém", label: "Paraíba" },
-]
-
 export function StatsStrip() {
   return (
-    <div className="border-b border-stone-100">
-      <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 divide-stone-100 md:divide-x">
-        {stats.map((s, i) => (
-          <div key={i} className="flex flex-col items-center text-center px-4 py-4 md:py-0">
-            <span className="text-xl md:text-2xl font-semibold text-stone-900 tracking-tight">
-              {s.value}
-            </span>
-            <span className="text-[11px] font-medium tracking-widest uppercase text-stone-400 mt-1">
-              {s.label}
-            </span>
+    <section className="bg-canvas py-10">
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 md:divide-x divide-stone-200">
+
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+            <span className="font-serif text-2xl font-semibold text-stone-900">5</span>
+            <span className="text-[11px] uppercase tracking-widest text-stone-400 mt-1">filhos</span>
           </div>
-        ))}
+
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+            <span className="font-serif text-2xl font-semibold text-stone-900">5</span>
+            <span className="text-[11px] uppercase tracking-widest text-stone-400 mt-1">frentes</span>
+          </div>
+
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+            <span className="font-serif text-base font-semibold text-stone-900">Igreja · Escola · Casa</span>
+          </div>
+
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+            <span className="font-serif text-2xl font-semibold text-stone-900">Gurinhém</span>
+            <span className="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Paraíba</span>
+          </div>
+
+        </div>
       </div>
-    </div>
+    </section>
   )
 }
