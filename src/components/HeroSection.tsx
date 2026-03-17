@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { campaign } from '../config/campaign'
-import { story } from '../content/story'
+import { family } from '../content/family'
 
-export function Intro() {
+export function HeroSection() {
   const [photoVisible, setPhotoVisible] = useState(true)
 
   return (
@@ -25,11 +25,11 @@ export function Intro() {
         </p>
 
         <h1 className="text-stone-800 text-3xl md:text-4xl font-serif leading-snug mb-8">
-          {campaign.coupleName}
+          {family.names}
         </h1>
 
         <div className="space-y-5">
-          {story.opening.map((p, i) => (
+          {family.identityParagraphs.map((p, i) => (
             <p key={i} className="text-stone-600 leading-relaxed">
               {p}
             </p>

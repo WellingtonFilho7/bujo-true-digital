@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { campaign } from '../config/campaign'
-import { story } from '../content/story'
+import { family } from '../content/family'
 import { pixPayload } from '../utils/pix'
 
 function WhatsAppIcon() {
@@ -32,7 +32,7 @@ export function SupportSection() {
         </p>
 
         <p className="text-stone-600 leading-relaxed mb-12 max-w-xl">
-          {story.inviteText}
+          {family.supportIntro}
         </p>
 
         {/* Pix */}
@@ -67,7 +67,7 @@ export function SupportSection() {
         <div className="mb-16">
           <p className="text-stone-800 font-serif text-lg mb-3">WhatsApp</p>
           <p className="text-stone-500 text-sm leading-relaxed mb-5 max-w-sm">
-            Se quiser conversar antes de decidir qualquer coisa, é só chamar.
+            Para conversar, tirar dúvidas ou se tornar um mantenedor — é só chamar.
           </p>
           <a
             href={whatsappUrl}
@@ -82,8 +82,8 @@ export function SupportSection() {
 
         {/* Assinatura */}
         <div className="border-t border-stone-100 pt-10">
-          <p className="text-stone-500 text-base">{story.closing}</p>
-          <p className="text-stone-600 font-serif text-base italic mt-1">{story.signature}</p>
+          <p className="text-stone-500 text-base">{family.closing}</p>
+          <p className="text-stone-600 font-serif text-base italic mt-1">{family.signature}</p>
         </div>
 
       </div>
