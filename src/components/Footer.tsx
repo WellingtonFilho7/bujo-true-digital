@@ -1,48 +1,34 @@
-import { campaign } from '../config/campaign'
-import { family } from '../content/family'
+import type { FooterContent } from '../content/site'
 
-export function Footer() {
+export function Footer({ content }: { content: FooterContent }) {
   return (
-    <footer className="bg-ink py-12 px-6">
-      <div className="max-w-5xl mx-auto">
-
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <footer className="bg-ink py-14 text-white">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="font-serif text-lg font-semibold text-white">{campaign.coupleName}</p>
-            <p className="text-sm text-stone-400 mt-0.5">{campaign.location}</p>
+            <p className="font-serif text-2xl font-semibold">{content.title}</p>
+            <p className="mt-2 text-sm text-stone-400">{content.location}</p>
           </div>
 
-          <div className="flex flex-wrap gap-5 text-sm text-stone-400">
-            <a
-              href={`https://instagram.com/${campaign.instagram1}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              @{campaign.instagram1}
-            </a>
-            <a
-              href={`https://instagram.com/${campaign.instagram2}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              @{campaign.instagram2}
-            </a>
-            <a
-              href={`mailto:${campaign.email}`}
-              className="hover:text-white transition-colors"
-            >
-              {campaign.email}
-            </a>
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-stone-300">
+            {content.links.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+                className="transition-colors hover:text-white"
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
         </div>
 
-        <div className="border-t border-stone-800 mt-8 pt-8">
-          <p className="text-stone-500 text-[15px]">{family.closing}</p>
-          <p className="text-stone-400 text-[15px] mt-1 italic">{family.signature}</p>
+        <div className="mt-8 border-t border-stone-800 pt-8">
+          <p className="text-pretty text-[15px] text-stone-400">{content.closing}</p>
+          <p className="mt-2 text-[15px] text-stone-300">{content.signature}</p>
         </div>
-
       </div>
     </footer>
   )

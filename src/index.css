@@ -1,36 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-serif: "Lora", "Georgia", serif;
 
-  --color-canvas: #FAF8F5;
-  --color-surface: #F0EDE8;
-  --color-ink: #1C1917;
-  --color-accent: #A8522A;
+  --color-canvas: #faf7f1;
+  --color-surface: #efe7dc;
+  --color-ink: #171411;
+  --color-accent: #a04f2b;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: var(--font-sans);
-  background-color: var(--color-canvas);
+:root {
   color: var(--color-ink);
-  font-size: 16px;
-  line-height: 1.7;
-  margin: 0;
+  background-color: var(--color-canvas);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  width: 100%;
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
-section[id] {
-  scroll-margin-top: 60px;
+body {
+  margin: 0;
+  min-width: 320px;
+  background-color: var(--color-canvas);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+#root {
+  min-height: 100dvh;
 }

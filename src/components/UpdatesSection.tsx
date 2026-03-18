@@ -1,78 +1,67 @@
-import { updates } from '../content/updates'
+import type { UpdatesContent } from '../content/site'
 
-export function UpdatesSection() {
-  if (updates.length === 0) return null
+export function UpdatesSection({ content }: { content: UpdatesContent }) {
+  if (content.items.length === 0) return null
 
-  const [latest, ...rest] = updates
+  const [latest, ...rest] = content.items
 
   return (
-    <section id="diario" className="bg-canvas py-16 md:py-24 px-6">
-      <div className="max-w-5xl mx-auto">
-
-        <div className="mb-12 md:mb-16">
-          <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-3">
-            Diário de campo
-          </p>
-          <h2 className="font-serif text-2xl md:text-3xl font-semibold text-stone-900 leading-snug">
-            Atualizações
+    <section id="diario" className="bg-canvas py-20 md:py-24">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="mb-12 max-w-2xl">
+          <p className="text-sm text-stone-500">{content.eyebrow}</p>
+          <h2 className="mt-3 text-balance font-serif text-3xl font-semibold text-stone-900 md:text-5xl">
+            {content.title}
           </h2>
         </div>
 
-        {/* Entrada mais recente — layout com foto */}
-        <div className="flex flex-col md:flex-row gap-10 md:gap-16 mb-16 pb-16 border-b border-stone-100">
-          <div className="flex-1 order-2 md:order-1">
-            <p className="text-xs font-medium tracking-widest uppercase text-stone-400 mb-4">
-              {latest.date}
-            </p>
-            <h3 className="font-serif text-xl font-semibold text-stone-900 leading-snug mb-6">
+        <div className="grid gap-8 border-b border-stone-200 pb-14 md:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] md:items-start md:gap-14">
+          <div>
+            <p className="text-sm text-stone-500">{latest.date}</p>
+            <h3 className="mt-3 max-w-2xl text-balance font-serif text-2xl font-semibold text-stone-900 md:text-3xl">
               {latest.title}
             </h3>
-            <div className="space-y-4">
-              {latest.paragraphs.map((p, i) => (
-                <p key={i} className="text-stone-600 text-[15px] leading-relaxed">
-                  {p}
+            <div className="mt-5 space-y-4">
+              {latest.paragraphs.map((paragraph) => (
+                <p key={paragraph} className="text-pretty text-[15px] leading-7 text-stone-600">
+                  {paragraph}
                 </p>
               ))}
             </div>
           </div>
 
-          <div className="w-full md:w-[36%] flex-shrink-0 order-1 md:order-2">
-            <img
-              src="/images/casa-1.jpeg"
-              alt="A casa em Gurinhém"
-              className="w-full object-cover"
-              style={{ aspectRatio: "4/3" }}
-            />
-          </div>
+          <img
+            src={content.featuredImage.src}
+            alt={content.featuredImage.alt}
+            width={content.featuredImage.width}
+            height={content.featuredImage.height}
+            loading="lazy"
+            decoding="async"
+            className="w-full rounded-[28px] object-cover shadow-sm"
+          />
         </div>
 
-        {/* Entradas anteriores */}
-        {rest.length > 0 && (
-          <div className="space-y-12">
-            {rest.map((update, index) => (
-              <div key={index} className="flex gap-8 md:gap-12">
-                <div className="w-20 flex-shrink-0 pt-0.5">
-                  <p className="text-xs font-medium text-stone-400 leading-snug">
-                    {update.date}
-                  </p>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-serif text-base font-semibold text-stone-900 mb-3">
+        {rest.length > 0 ? (
+          <div className="mt-10 space-y-10">
+            {rest.map((update) => (
+              <article key={`${update.date}-${update.title}`} className="grid gap-4 md:grid-cols-[140px_minmax(0,1fr)]">
+                <p className="pt-1 text-sm text-stone-500">{update.date}</p>
+                <div>
+                  <h3 className="text-balance font-serif text-xl font-semibold text-stone-900">
                     {update.title}
                   </h3>
-                  <div className="space-y-3">
-                    {update.paragraphs.map((p, i) => (
-                      <p key={i} className="text-stone-600 text-[15px] leading-relaxed">
-                        {p}
+                  <div className="mt-3 space-y-3">
+                    {update.paragraphs.map((paragraph) => (
+                      <p key={paragraph} className="text-pretty text-[15px] leading-7 text-stone-600">
+                        {paragraph}
                       </p>
                     ))}
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
-        )}
-
+        ) : null}
       </div>
     </section>
   )

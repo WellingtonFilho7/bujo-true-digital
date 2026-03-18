@@ -1,37 +1,48 @@
-import { family } from "../content/family"
+import type { HeroContent } from '../content/site'
 
-export function HeroSection() {
+export function HeroSection({ content }: { content: HeroContent }) {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-ink">
-      <img
-        src="/images/hero.jpg"
-        alt="Wellington e Dyanna Nascimento"
-        className="absolute inset-0 w-full h-full object-cover object-center"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0">
-        <div className="max-w-5xl mx-auto px-6 pb-16">
-          <p className="text-xs font-medium tracking-widest uppercase text-white/50 mb-4">
-            {family.location}
-          </p>
-          <h1 className="font-serif text-5xl md:text-6xl font-bold text-white leading-tight">
-            {family.names}
+    <section id="top" className="relative min-h-dvh overflow-hidden bg-ink text-white">
+      <picture className="absolute inset-0">
+        {content.image.mobileSrc ? (
+          <source media="(max-width: 767px)" srcSet={content.image.mobileSrc} />
+        ) : null}
+        <img
+          src={content.image.src}
+          alt={content.image.alt}
+          width={content.image.width}
+          height={content.image.height}
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+      </picture>
+
+      <div className="absolute inset-0 bg-black/55" aria-hidden="true" />
+
+      <div className="relative mx-auto flex min-h-dvh max-w-6xl items-end px-6 pb-16 pt-28 md:pb-20">
+        <div className="max-w-3xl">
+          <p className="mb-4 text-sm text-white/70">{content.eyebrow}</p>
+          <h1 className="max-w-2xl text-balance font-serif text-5xl leading-tight font-semibold md:text-7xl">
+            {content.title}
           </h1>
-          <p className="text-lg text-white/80 mt-3">
-            {family.mission}
+          <p className="mt-5 max-w-2xl text-pretty text-base leading-7 text-white/84 md:text-lg">
+            {content.mission}
           </p>
-          <div className="mt-8 flex flex-wrap gap-6">
+
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <a
-              href="#frentes"
-              className="text-sm text-white/90 hover:text-white transition-colors"
+              href={content.primaryAction.href}
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-accent px-5 text-sm font-medium text-white transition-colors hover:bg-[#934722]"
             >
-              ↓ Conheça o trabalho
+              {content.primaryAction.label}
             </a>
             <a
-              href="#como-ajudar"
-              className="text-sm text-white/60 hover:text-white/90 transition-colors"
+              href={content.secondaryAction.href}
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/35 px-5 text-sm font-medium text-white transition-colors hover:border-white/60 hover:bg-white/8"
             >
-              Como apoiar →
+              {content.secondaryAction.label}
             </a>
           </div>
         </div>
