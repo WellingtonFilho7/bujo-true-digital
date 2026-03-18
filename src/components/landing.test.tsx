@@ -20,4 +20,14 @@ describe('landing navigation and initiatives', () => {
     expect(screen.getByText('bemaeducation.com.br').closest('a')).not.toHaveAttribute('href', '#')
     expect(screen.getByText('institutolumine.org').closest('a')).not.toHaveAttribute('href', '#')
   })
+
+  it('renders the about section as a continuous first-person presentation', () => {
+    render(<App />)
+
+    const aboutSection = screen.getByRole('region', { name: 'Quem somos' })
+
+    expect(within(aboutSection).getByText('Somos uma família cristã dedicada ao ensino das Escrituras, ao cuidado da igreja e à formação de famílias.')).toBeInTheDocument()
+    expect(within(aboutSection).getByText(/Somos Wellington e Dyanna, casados e pais de cinco filhos\./)).toBeInTheDocument()
+    expect(within(aboutSection).queryByText('Uma casa se abrindo pra igreja, pras crianças e pra mesa.')).not.toBeInTheDocument()
+  })
 })

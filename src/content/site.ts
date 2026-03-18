@@ -39,16 +39,10 @@ export interface StatsItem {
   label?: string
 }
 
-export interface AboutBlock {
-  title: string
-  body: string
-}
-
 export interface AboutContent {
   eyebrow: string
-  title: string
-  lede: string
-  blocks: AboutBlock[]
+  intro: string
+  paragraphs: string[]
 }
 
 export interface InitiativeItem {
@@ -210,8 +204,7 @@ export const siteConfig: SiteConfig = {
   hero: {
     eyebrow: 'Gurinhém, Agreste da Paraíba',
     title: brandName,
-    mission:
-      'Uma família se mudando pra perto da igreja, investindo em formação cristã e servindo crianças, famílias e irmãos no interior da Paraíba.',
+    mission: 'Ensino das Escrituras. Cuidado da Igreja. Formação de famílias.',
     primaryAction: {
       label: 'Conheça o trabalho',
       href: '#frentes',
@@ -236,25 +229,10 @@ export const siteConfig: SiteConfig = {
   ],
   about: {
     eyebrow: 'Quem somos',
-    title: 'Uma casa se abrindo pra igreja, pras crianças e pra mesa.',
-    lede:
-      'Depois de mais de dois anos na estrada toda semana, Wellington e Dyanna estão se mudando pra perto da comunidade que pastoreiam. O objetivo é simples: aproximar casa, igreja e rotina no mesmo lugar.',
-    blocks: [
-      {
-        title: 'Uma família se enraizando',
-        body:
-          'Eles são pais de cinco filhos e estão reorganizando a vida inteira pra servir a partir de Gurinhém, com menos deslocamento e mais presença no cotidiano da igreja e da cidade.',
-      },
-      {
-        title: 'Dyanna e a formação das crianças',
-        body:
-          'Dyanna conduz o Lumine, trabalha com literatura e alfabetização, educa os filhos em casa e acompanha de perto famílias que precisam de direção e constância.',
-      },
-      {
-        title: 'Wellington e o cuidado da igreja',
-        body:
-          'Wellington serve na Igreja Comum, ensina as Escrituras e continua viajando quando necessário pra fortalecer irmãos, iniciativas e comunidades que pedem ajuda.',
-      },
+    intro: 'Somos uma família cristã dedicada ao ensino das Escrituras, ao cuidado da igreja e à formação de famílias.',
+    paragraphs: [
+      'Somos Wellington e Dyanna, casados e pais de cinco filhos. Nossa vida é marcada pela fé, pela rotina em família e pelo compromisso de viver aquilo que ensinamos. Dyanna serve na formação das crianças e no desenvolvimento das iniciativas educacionais que conduzimos. Wellington serve no ensino bíblico, no pastoreio e no cuidado de comunidades.',
+      'Tudo o que fazemos nasce dessa vida. Servimos a igreja, acompanhamos pessoas de perto e desenvolvemos frentes voltadas à formação de crianças e famílias, procurando viver de forma coerente aquilo que cremos.',
     ],
   },
   initiatives: {
